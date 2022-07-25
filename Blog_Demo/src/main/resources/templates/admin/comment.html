@@ -22,11 +22,14 @@
                 form = layui.form;
 
             let commData = [[${commentData}]]
-            let title = [];
+            let idArray = [];
+            let map = new Map();
             for (let commDataKey in commData) {
-                title.push(commDataKey)
+                let id = commData[commDataKey].blogId;
+                idArray.push(id)
+                map.set(id, commData[commDataKey].num)
             }
-            let titleString = title.join('|')
+            console.log(idArray)
 
             //博客数据表格
             let blogTab = table.render({
@@ -51,10 +54,10 @@
                     }
                         , {
                         field: 'blogTitle', title: '博客标题', width: 200, templet: function (res) {
-                            if (titleString.includes(res.blogTitle)) {
+                            if (idArray.indexOf(res.blogId) !== -1) {
+                                // let num = commData[res.blogTitle].num
                                 return '<p>' + res.blogTitle + ' &nbsp;&nbsp;&nbsp;' +
-                                    '<span class="layui-badge layui-bg-orange">' + commData[res.blogTitle].num +
-                                    '</span></p>'
+                                    '<span class="layui-badge layui-bg-orange">' + map.get(res.blogId) + '</span></p>'
                             } else return res.blogTitle
                         }
                     }
