@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="blog/fragment/temp :: head(~{ :: title},~{})">
+    <title>十八 | blog</title>
+</head>
+<style>
+    #myBtn {
+        /*display: none; !* 默认隐藏 *!*/
+        position: fixed;
+        border: none;
+        outline: none;
+        background-color: grey; /* 设置背景颜色，你可以设置自己想要的颜色或图片 */
+        color: white; /* 文本颜色 */
+        cursor: pointer;
+        padding: 9px;
+        border-radius: 10px; /* 圆角 */
+        width: 50px;
+        bottom: 70px;
+        left: 15px;
+        z-index: 99;
+    }
+
+
+    #myBtn:hover {
+        background-color: #555;
+    }
+</style>
+
+<!-- editor.md 样式表 -->
+<link rel="stylesheet" th:href="@{/resources/md/css/editormd.css}">
+<body>
+
+<!-- Navigation -->
+<nav th:replace="blog/fragment/temp :: nav"></nav>
+
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('/resources/blog/img/post-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <div class="post-heading">
+                    <h2 style="font-family: 'Consoles',serif">
+                        学无止境，不因当下或未来而终止
+                    </h2>
+                    <br/>
+                    <p class="subheading" style="font-family: '华文隶书',serif; font-weight: initial">
+                        现在遇到的问题，只是为以后做积累
+                    </p>
+                    <span class="meta">Posted by <a th:href="@{/about}"> 二 三 </a></span>
+                    <br/>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: large;
+                font-family: Consoles,serif; font-weight: bold; color: white">
+                    <p id="creatTime"></p>
+                    <p id="updateTime"></p>
+                    <p> 浏览次数 ➤ [[${blog.blogViews}]]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <h3 th:text="${blog.blogTitle}"></h3>
+                <div style="font-weight: bold; font-style: italic; margin: 10px 20px">
+                    <div style="margin-bottom: 10px">类别: <a
+                            th:href="@{/blogs/(variable = ${blog.blogCate}, flag = false)}">[[${blog.blogCate}]]</a>
+                    </div>
+                    标签:
+                    <span th:each="tag, tagStat : ${blogTags}">
+                    <span><a th:href="@{/blogs/(variable = ${tag}, flag = true)}">[[${tag}]]</a></span>&nbsp;&nbsp;&nbsp;
+                </span>
+                </div>
+
+                <hr class="layui-border-orange">
+                <div id="doc-content">
+                    <textarea id="append-test" style="display:none;">[[${blog.blogContent}]]</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<hr>
+
+<div class="row">
+    <!-- 留言板模块 -->
+    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+        <button class="layui-btn layui-btn-primary layui-btn-fluid"
+                style="color: black; background: lightgray" type="button">
+            留言板
+        </button>
+        <br/>
+        <!-- 添加留言，登录后显示 -->
+        <button class="layui-btn layui-btn-primary layui-btn-fluid" id="sub"
+                th:if="${blog.allowComm == '0'}" type="button">
+            添加留言
+        </button>
+        <!-- 博客不允许留言 -->
+        <button class="layui-btn layui-btn-primary layui-btn-fluid" shiro:user
+                th:if="${blog.allowComm == '1'}" type="button">
+            该博客不允许留言
+        </button>
+        <br/>
+        <br/>
+        <!-- 遍历显示该博客留言 -->
+        <div id="comm" th:each="comment, commentStat : ${comments}">
+            <blockquote class="layui-elem-quote layui-quote-nm"
+                        th:title="|${commentStat.size - commentStat.index}楼|">
+                [[${comment.commentBody}]]
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;—— By [[${comment.commentator}]]&nbsp;&nbsp;&nbsp;
+                <span style="font-size: 10px; font-weight: bold">
+                    留言时间 -[[${comment.commentTime}]]&nbsp;&nbsp;&nbsp;
+                    联系方式 - [[${comment.telNum}]]&nbsp;&nbsp;&nbsp;
+                    第 [[${commentStat.size - commentStat.index}]] 楼
+                </span>
+                <!-- 存在回复时显示评论回复 -->
+                <blockquote class="layui-elem-quote" style=" margin-top: 10px" th:if="${comment.reply}">&nbsp;&nbsp;&nbsp;
+                    [[${comment.reply}]]
+                    <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;—— By 作者&nbsp;&nbsp;&nbsp;
+                    <span style="font-size: 10px; font-weight: bold">
+                        回复时间 - [[${comment.replyTime}]]
+                    </span>
+                </blockquote>
+                <!-- 回复按钮，拥有管理员权限且当前没有回复内容时显示 -->
+                <button class="layui-btn layui-btn-xs layui-btn-radius  layui-btn-primary" id="reply"
+                        onclick="reply(this)" shiro:hasAnyRoles="admin, boss" th:commId="${comment.commentId}"
+                        th:text="回复" th:unless="${comment.reply}"
+                        type="button">
+                </button>
+            </blockquote>
+        </div>
+    </div>
+</div>
+<button id="myBtn" onclick="move()" title="回到顶部" type="button">回到目录</button>
+
+
+<hr>
+<div hidden id="nickName" readonly="">
+    <div property="nickName" shiro:principal=""></div>
+</div>
+<!-- Footer -->
+<footer th:replace="blog/fragment/temp :: footer"></footer>
+
+</body>
+
+</html>
+
+<script th:src="@{/resources/md/lib/marked.min.js}"></script>
+<script th:src="@{/resources/md/lib/prettify.min.js}"></script>
+<script th:src="@{/resources/md/lib/raphael.min.js}"></script>
+<script th:src="@{/resources/md/lib/underscore.min.js}"></script>
+<script th:src="@{/resources/md/lib/sequence-diagram.min.js}"></script>
+<script th:src="@{/resources/md/lib/flowchart.min.js}"></script>
+<script th:src="@{/resources/md/lib/jquery.flowchart.min.js}"></script>
+<script th:src="@{/resources/md/editormd.js}"></script>
+<script th:src="@{/resources/md/editormd.amd.min.js}"></script>
+<script th:inline="javascript">
+
+    // <!-- 移动页面到目录 -->
+    function move() {
+        $("#doc-content")[0].scrollIntoView();
+    }
+
+    let blog = [[${blog}]];
+    layui.use(['code', 'form', 'layer'], function () {
+
+        let layer = layui.layer,
+            form = layui.form,
+            $ = layui.jquery;
+
+        // 博客发布和修改时间
+        let updateTime = blog.updateTime
+        let creatTime = blog.creatTime
+        $('#creatTime').text('发布时间 ➤ ' + new Date(creatTime).toLocaleString())
+        if (updateTime != null) {
+            $('#updateTime').text('修改时间 ➤ ' + new Date(updateTime).toLocaleString())
+        } else {
+            $('#updateTime').text('修改时间 ➤ ' + new Date(creatTime).toLocaleString())
+        }
+
+        //提交评论
+        $('#sub').click(function () {
+            layer.open({
+                ID: 100001,
+                type: 1,
+                title: '<h4 style="text-align: center;font-family: 华文行楷,serif; font-size: xx-large; margin-top: 5px">添加留言</h4>',
+                area: ['60%', '60%'],
+                skin: 'layui-layer-molv',
+                shade: 0.8,
+                btn: ['确认', '重置', '取消'],
+                btnAlign: 'c',
+                content: `<form class="layui-form layui-form-pane" style="padding: 10px; margin-left: 10px; margin-top: 10px" action="">
+                             <div class="layui-form-item" hidden>
+                                <label class="layui-form-label">博客ID：</label>
+                                <div class="layui-input-inline">
+                                  <input type="number" name="blogId" lay-verify="required" width="200px" value="${blog.blogId}"
+                                   placeholder="博客ID" autocomplete="off" class="layui-input" readonly>
+                                </div>
+                              </div>
+                              <div class="layui-form-item" hidden>
+                                <label class="layui-form-label">博客标题：</label>
+                                <div class="layui-input-inline">
+                                  <input type="text" name="blogTitle" lay-verify="required" width="200px" value="${blog.blogTitle}"
+                                   placeholder="博客标题" autocomplete="off" class="layui-input" readonly>
+                                </div>
+                              </div>
+                              <div class="layui-form-item">
+                                <label class="layui-form-label">姓 &nbsp;&nbsp; 名</label>
+                                <div class="layui-input-inline">
+                                  <input type="text" name="commentator" width="200px" lay-verify="required"
+                                  lay-reqText="请告诉我你的名字" placeholder="尊姓大名" autocomplete="off" class="layui-input">
+                                </div>
+                              </div>
+                               <div class="layui-form-item">
+                                <label class="layui-form-label">联系方式</label>
+                                <div class="layui-input-inline">
+                                  <input type="text" name="telNum" lay-verify="required|phone"
+                                  lay-reqText="请告诉我怎么联系你" placeholder="How Call You ？" autocomplete="off" class="layui-input">
+                                </div>
+                              </div>
+                              <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label">留  &nbsp;&nbsp;言</label>
+                                <div class="layui-input-block">
+                                  <textarea placeholder="请添加留言" name="commentBody" lay-reqText="请添加你的留言内容"
+                                  lay-verify="required" rows="5" class="layui-textarea"></textarea>
+                                </div>
+                              </div>
+                              <div class="layui-form-item" >
+                                <button type="reset" id="reset" class="layui-btn layui-btn-primary" hidden>重置</button>
+                              </div>
+                           </form>`,
+                success: function (layero) {
+                    layero.addClass('layui-form');
+                    // 将确认按钮改变成提交按钮
+                    layero.find('.layui-layer-btn0').attr({
+                        'lay-filter': '*',
+                        'lay-submit': ''
+                    });
+                },
+                yes: function () {
+                    console.log("执行确认按钮")
+                    form.on('submit(*)', function (data) {
+                        console.log('触发了提交按钮')
+                        console.log(data.field)
+                        $.ajax({
+                            url: '/blog/comment',
+                            data: data.field,
+                            type: 'Post',
+                            success: function (data) {
+                                layer.msg(data.message, {
+                                    time: 1500,
+                                    end: function () {
+                                        if (data.code === 1) {
+                                            layer.closeAll();
+                                            location.reload()
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    })
+                },
+                btn2: function () {
+                    $('#reset').click()
+                    return false;
+                },
+            })
+        })
+
+    });
+
+    // 提交回复
+    function reply(obj) {
+        console.log('进行回复')
+        console.log(obj)
+        let commentId = Number.parseInt(obj.getAttribute('commId'))
+        layui.use(['code', 'form', 'layer'], function () {
+            let layer = layui.layer,
+                form = layui.form,
+                $ = layui.jquery;
+
+            layer.open({
+                ID: 100001,
+                type: 1,
+                title: '<h4 style="text-align: center;font-family: 华文行楷,serif; font-size: xx-large; margin-top: 5px">回复</h4>',
+                area: ['60%', '48%'],
+                skin: 'layui-layer-molv',
+                shade: 0.8,
+                btn: ['确认', '重置', '取消'],
+                btnAlign: 'c',
+                content: `<form class="layui-form layui-form-pane" style="padding: 10px; margin-left: 10px; margin-top: 10px" action="">
+                             <div class="layui-form-item" hidden>
+                                <label class="layui-form-label">评论ID：</label>
+                                <div class="layui-input-inline">
+                                  <input type="number" name="commentId" lay-verify="required" width="200px"  value="${commentId}"
+                                   placeholder="评论ID" autocomplete="off" class="layui-input" readonly>
+                                </div>
+                              </div>
+                              <div class="layui-form-item" hidden>
+                                <label class="layui-form-label">博客ID：</label>
+                                <div class="layui-input-inline">
+                                  <input type="number" name="blogId" lay-verify="required" width="200px"  value="${blog.blogId}"
+                                   placeholder="博客ID" autocomplete="off" class="layui-input" readonly>
+                                </div>
+                              </div>
+
+                              <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label">回复内容</label>
+                                <div class="layui-input-block">
+                                  <textarea placeholder="请添加回复内容" name="reply" lay-reqText="请对该评论添加回复"
+                                  lay-verify="required" rows="7" class="layui-textarea"></textarea>
+                                </div>
+                              </div>
+                              <div class="layui-form-item" hidden>
+                                <button type="reset" id="reset" class="layui-btn layui-btn-primary" hidden>重置</button>
+                              </div>
+                           </form>`,
+                success: function (layero) {
+                    layero.addClass('layui-form');
+                    // 将保存按钮改变成提交按钮
+                    layero.find('.layui-layer-btn0').attr({
+                        'lay-filter': 'reply',
+                        'lay-submit': ''
+                    });
+                },
+                yes: function () {
+                    console.log("执行确认按钮")
+                    form.on('submit(reply)', function (data) {
+                        console.log('触发了提交按钮')
+                        console.log(data.field)
+                        $.ajax({
+                            url: '/admin/blog/reply',
+                            data: data.field,
+                            type: 'Post',
+                            success: function (data) {
+                                layer.msg(data.message, {
+                                    time: 1500,
+                                    end: function () {
+                                        if (data.code === 1) {
+                                            layer.closeAll();
+                                            location.reload()
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    })
+                },
+                btn2: function () {
+                    $('#reset').click()
+                    return false;
+                },
+            })
+        })
+    }
+
+    //解析博客内容为 MarkDown 文本
+    $(function () {
+        editormd.markdownToHTML("doc-content", {
+            htmlDecode: "style,script,iframe",  // you can filter tags decode
+            emoji: true,
+            taskList: true,
+            tex: true,  // 默认不解析
+            flowChart: true,  // 默认不解析
+            sequenceDiagram: true,  // 默认不解析
+            tocm: true,         // Using [TOCM]
+        });
+    });
+</script>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<!-- 引入页面头模板  -->
+<head th:replace="admin/fragment/temp :: head(~{:: title}, ~{})">
+    <title>二三 | blogs</title>
+</head>
+<!-- 引入body模板 -->
+<body th:replace="admin/fragment/temp :: body(~{:: content})">
+<!-- 自定义页面内容 -->
+<div th:fragment="content">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>博客评论（Tips：根据提示查看对应博客评论）</legend>
+    </fieldset>
+    <table class="layui-hide" id="comment" lay-filter="comment"></table>
+    <script id="barDemo" type="text/html">
+        <a class="layui-btn layui-btn-xs" lay-event="look" id="look">查看评论</a>
+    </script>
+
+    <script th:inline="javascript">
+        layui.use(['table', 'form'], function () {
+            let table = layui.table,
+                form = layui.form;
+
+            let commData = [[${commentData}]]
+            let title = [];
+            for (let commDataKey in commData) {
+                title.push(commDataKey)
+            }
+            let titleString = title.join('|')
+
+            //博客数据表格
+            let blogTab = table.render({
+                elem: '#comment'
+                , url: '/admin/blog/blogsData'
+                , toolbar: true //开启头部工具栏，并为其绑定左侧模板
+                , defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+                    title: '提示'
+                    , layEvent: 'LAYTABLE_TIPS'
+                    , icon: 'layui-icon-tips'
+                }]
+                , initSort: {
+                    field: 'commentNum' //排序字段，对应 cols 设定的各字段名
+                    , type: 'desc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+                }
+                , title: '博客数据表'
+                , cols: [
+                    [
+                        {type: 'checkbox', fixed: 'left'}
+                        , {
+                        field: 'blogId', title: 'ID', width: 120, fixed: 'left', sort: true, hide: true
+                    }
+                        , {
+                        field: 'blogTitle', title: '博客标题', width: 200, templet: function (res) {
+                            if (titleString.includes(res.blogTitle)) {
+                                return '<p>' + res.blogTitle + ' &nbsp;&nbsp;&nbsp;' +
+                                    '<span class="layui-badge layui-bg-orange">' + commData[res.blogTitle].num +
+                                    '</span></p>'
+                            } else return res.blogTitle
+                        }
+                    }
+                        , {field: 'blogCate', title: '博客分类', width: 200}
+                        , {
+                        field: 'blogTagName', title: '博客标签', width: 200, templet: function (res) {
+                            let tags = res.blogTagName.trim().split(/\s+/g)
+                            let result = '';
+                            for (let i = 0; i < tags.length; i++) {
+                                result += ' <span class="layui-badge layui-bg-orange">' + tags[i] + '</span>'
+                            }
+                            return result;
+                        }
+                    }
+                        , {field: 'commentNum', title: '评论数', sort: true, width: 200}
+                        , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 200},
+                    ]
+                ]
+                , page: true
+                , limit: 8
+                , limits: [8, 10, 12, 15, 20]
+                , done: function (res, curr, count) {
+                    //如果是异步请求数据方式，res即为你接口返回的信息。
+                    //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+                    // console.log(res);
+                    // console.log(curr)    //当前页码
+                    // 不存在博客时进行提示
+                    if (count === 0) {
+                        layer.msg('没有已发布博客', {
+                            area: ['260px', '100px'],
+                            btn: '确认',
+                            btnAlign: 'c',
+                            time: 3000
+                        })
+                    }
+
+                }
+            });
+
+            //头工具栏事件
+            table.on('toolbar(comment)', function (obj) {
+                switch (obj.event) {
+                    //自定义头工具栏右侧图标 - 提示
+                    case 'LAYTABLE_TIPS':
+                        layer.msg('', {
+                            type: 1,
+                            area: '400px',
+                            title: '<h3 style="margin-left: 47%; color: white">查看评论方法</h3>',
+                            content: '<div style="font-size: medium; font-family: 楷体,serif">单击查看按钮获取当前博客所有评论及回复</div>',
+                            btn: '确认',
+                            btnAlign: 'c',
+                            shade: 0.6,
+                            shadeClose: true,
+                            time: -1
+                        });
+                        break;
+                }
+            });
+
+            //监听行工具事件
+            table.on('tool(comment)', function (obj) {
+                let data = obj.data;
+                if (obj.event === 'look') {  // 查看
+                    layer.open({
+                        type: 1
+                        , title: '<h3>博客 ' + data.blogTitle + ' 的评论</h3>'
+                        , toolbar: true //开启头部工具栏，并为其绑定左侧模板
+                        , defaultToolbar: ['filter', 'exports', 'print']
+                        , closeBtn: 1
+                        , area: ['80%;', '80%']
+                        , shade: 0.8
+                        , shadeClose: true
+                        , btn: '确认'
+                        , btnAlign: 'r'
+                        , moveType: 1 //拖拽模式，0或者1
+                        , time: -1
+                        , content: `<div style="margin: 10px">
+                                    <table class="layui-hide" id="commentTable" lay-filter="commentTable"></table>
+                                    <div id="tool" hidden>
+                                        <a class="layui-btn layui-btn-xs" lay-event="reply" id="reply">回复</a>
+                                        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del" id="del">删除</a>
+                                    </div>
+                                </div>`
+                        , success: function () {
+                            // 指定博客评论数据表
+                            let reply = table.render({
+                                elem: '#commentTable'
+                                , url: '/admin/blog/commData/' + data.blogId
+                                , toolbar: true //开启头部工具栏，并为其绑定左侧模板
+                                , defaultToolbar: ['filter', 'exports', 'print']
+                                , page: true //开启分页
+                                , limit: 8
+                                , limits: [5, 8, 10, 12]
+                                , initSort: {
+                                    field: 'commentTime' //排序字段，对应 cols 设定的各字段名
+                                    , type: 'desc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+                                }
+                                , cols: [
+                                    [
+                                        {
+                                            field: 'commentId', title: '评论ID', width: 80, fixed: 'left',
+                                            sort: true, hide: true
+                                        }
+                                        , {
+                                        field: 'blogTitle', title: '博客标题', width: 120, templet: function () {
+                                            return data.blogTitle
+                                        }
+                                    }
+                                        , {field: 'commentator', title: '评论人', width: 120}
+                                        , {field: 'telNum', title: '联系方式', width: 150}
+                                        , {
+                                        field: 'commentTime', title: '评论时间', width: 160, sort: true,
+                                        templet: function (res) {
+                                            return new Date(res.commentTime).toLocaleString()
+                                        }
+                                    }
+                                        , {field: 'commentBody', title: '评论内容', width: 200, sort: true}
+                                        , {
+                                        field: 'deleted', title: '状态', width: 80, sort: true, templet: function (res) {
+                                            return res.deleted === '0' ? '正常' : '已删除'
+                                        }
+                                    }
+                                        , {
+                                        field: 'reply', title: '回复', width: 200, templet: function (res) {
+                                            if (res.reply !== null && res.reply !== '') {
+                                                return res.reply
+                                            } else {
+                                                return ''
+                                            }
+                                        }
+                                    }
+                                        , {
+                                        field: 'replyTime', title: '回复时间', sort: true, width: 160,
+                                        templet: function (res) {
+                                            if (res.replyTime != null) {
+                                                return new Date(res.replyTime).toLocaleString()
+                                            } else return ''
+                                        }
+                                    }
+                                        , {fixed: 'right', title: '操作', toolbar: '#tool', width: 130}
+                                    ]
+                                ]
+                                , done: function (res, curr, count) {
+                                    // console.log(res);
+                                    //得到数据总量
+                                    if (count === 0) {
+                                        layer.msg('', {
+                                            content: '<strong style="color: red">当前博客没有评论</strong>',
+                                            time: 1200
+                                        })
+                                    }
+                                }
+
+                            });
+                            //提交回复
+                            table.on('tool(commentTable)', function (obj) {
+                                let data = obj.data;
+                                console.log(data)
+                                if (obj.event === 'reply') {  //回复
+                                    let msg = layer.msg('', {
+                                        type: 1,
+                                        shade: 0.5,
+                                        area: ['60%', '60%'],
+                                        skin: 'layui-layer-molv',
+                                        btn: ['确认', '重置', '取消'],
+                                        btnAlign: 'r',
+                                        time: -1,
+                                        content: `
+                                            <form class="layui-form layui-form-pane" style="padding: 10px; margin-left: 10px; margin-top: 10px" action="" lay-filter="reply">
+                                                 <div class="layui-form-item layui-form-text layui-form-pane" style="padding-top: 20px">
+                                                    <label class="layui-form-label">评论内容</label>
+                                                    <div class="layui-input-block">
+                                                      <textarea name="reply" lay-verify="required" rows="2" class="layui-textarea" readonly>${data.commentBody}</textarea>
+                                                    </div>
+                                               </div>
+                                                 <div class="layui-form-item" hidden>
+                                                    <label class="layui-form-label">评论ID</label>
+                                                    <div class="layui-input-inline">
+                                                      <input type="number" name="commentId" lay-verify="required" width="200px"  value="${data.commentId}"
+                                                       placeholder="评论ID" autocomplete="off" class="layui-input" readonly>
+                                                    </div>
+                                                  </div>
+                                                  <div class="layui-form-item" hidden>
+                                                    <label class="layui-form-label">博客ID</label>
+                                                    <div class="layui-input-inline">
+                                                      <input type="number" name="blogId" lay-verify="required" width="200px"  value="${data.blogId}"
+                                                       placeholder="博客ID" autocomplete="off" class="layui-input" readonly>
+                                                    </div>
+                                                  </div>
+                                                  <div class="layui-form-item layui-form-text">
+                                                    <label class="layui-form-label">回复内容</label>
+                                                    <div class="layui-input-block">
+                                                      <textarea placeholder="请添加回复内容" name="reply" lay-reqText="请对该评论添加回复"
+                                                      lay-verify="required" rows="5" class="layui-textarea" id="reply"></textarea>
+                                                    </div>
+                                                  </div>
+                                                  <div class="layui-form-item" hidden>
+                                                    <button type="reset" id="reset" class="layui-btn layui-btn-primary" hidden>重置</button>
+                                                  </div>
+                                               </form>`,
+                                        success: function (layero) {
+                                            layero.addClass('layui-form');
+                                            // 将保存按钮改变成提交按钮
+                                            layero.find('.layui-layer-btn0').attr({
+                                                'lay-filter': 'reply',
+                                                'lay-submit': ''
+                                            });
+                                            // 将原评论数据赋值到文本域中
+                                            if (data.reply !== null) {
+                                                layui.$(function () {
+                                                    form.val('reply', {
+                                                        "reply": data.reply
+                                                    });
+                                                });
+                                            }
+                                            form.render()
+                                        },
+                                        yes: function () {
+                                            console.log("执行确认按钮")
+                                            form.on('submit(reply)', function (data) {
+                                                console.log('触发了提交按钮')
+                                                console.log(data.field)
+                                                $.ajax({
+                                                    url: '/admin/blog/reply',
+                                                    data: {
+                                                        commentId: data.field.commentId,
+                                                        blogId: data.field.blogId,
+                                                        reply: data.field.reply
+                                                    },
+                                                    type: 'Post',
+                                                    success: function (data) {
+                                                        layer.msg(data.message, {
+                                                            time: 1500,
+                                                            end: function () {
+                                                                if (data.code === 1) {
+                                                                    reply.reload()
+                                                                    layer.close(msg)
+                                                                }
+                                                            }
+                                                        })
+                                                    }
+                                                })
+                                            })
+                                        },
+                                        btn2: function () {
+                                            $('#reset').click()
+                                            return false;
+                                        },
+                                        btn3: function () {
+                                            layer.msg('已取消', {
+                                                time: 1200
+                                            })
+                                        }
+                                    })
+                                } else if (obj.event === 'del') { // 删除
+                                    layer.msg('', {
+                                        shade: 0.6,
+                                        shadeClose: true
+                                        , area: '280px;'
+                                        , btn: ['删除', '取消']
+                                        , btnAlign: 'c'
+                                        , moveType: 1 //拖拽模式，0或者1
+                                        , content:
+                                            '<div style="font-size: medium; text-align:center">' +
+                                            '<p>是否删除 ' + data.commentator + ' 的评论</p>' +
+                                            '</div>'
+                                        , time: 5000
+                                        , yes: function () {
+                                            $.ajax({
+                                                url: '/admin/blog/comment/deleted/' + data.commentId,
+                                                type: 'Post',
+                                                success: function (data) {
+                                                    if (data.code === 1) {
+                                                        layer.msg(data.message, {
+                                                            time: 1200,
+                                                            shadeClose: true,
+                                                            end: function () {
+                                                                if (data.code === 1) {
+                                                                    reply.reload()
+                                                                }
+                                                            }
+                                                        })
+                                                    } else if (data.code === 2) {
+                                                        layer.msg('', {
+                                                            content: '<div style="color: red">' + data.message + '</div>',
+                                                            time: 1200,
+                                                            shadeClose: true,
+                                                        })
+                                                    }
+                                                }
+                                            })
+                                        }
+                                        , btn2: function () {
+                                            layer.msg("已取消")
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                        , end: function () {
+                            location.reload()
+                        }
+                    });
+                }
+            })
+        })
+    </script>
+</div>
+</body>
+<script th:replace="admin/fragment/temp :: JS"></script>
+</html>

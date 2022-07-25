@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- namespace：命名空间，自定义唯一值；常规使用 dao 接口全限定名 -->
+<mapper namespace="blog.dao.TagDao">
+
+    <resultMap id="tag" type="blog.empty.Tag">
+        <id column="tag_id" property="tagId"/>
+        <result column="tag_name" property="tagName"/>
+        <result column="tag_weights" property="tagWeights"/>
+    </resultMap>
+
+    <sql id="field">
+        tag_id
+        , tag_name, tag_weights
+    </sql>
+
+    <!--获取所有标签-->
+    <select id="get" resultMap="tag">
+        select
+        <include refid="field"/>
+        from tag
+        order by tag_weights desc
+    </select>
+
+    <!-- 获取所有标签名 -->
+    <select id="getNames" resultType="String">
+        select tag_name
+        from tag
+        order by tag_weights desc
+    </select>
+
+    <!--根据 id 集合获取标签集合-->
+    <select id="getById" resultMap="tag">
+        select
+        <include refid="field"/>
+        from tag
+        where tag_id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--根据 标签名 集合获取标签-->
+    <select id="getByName" resultMap="tag">
+        select
+        <include refid="field"/>
+        from tag
+        where tag_name = #{tagName}
+    </select>
+
+    <!--统计标签数量-->
+    <select id="getCount" resultType="Integer">
+        select count(*)
+        from tag
+    </select>
+
+    <!--批量添加标签-->
+    <insert id="insert">
+        insert into tag(tag_name) values
+        <foreach collection="list" separator="," item="name">
+            (#{name})
+        </foreach>
+    </insert>
+
+    <!--根据id批量删除标签-->
+    <delete id="removeByIds">
+        delete from tag
+        where tag_id in
+        <foreach collection="array" item="id" open="(" close=")"
+                 separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--根据标签名批量删除标签-->
+    <delete id="removeByNames">
+        delete
+        from tag
+        where tag_name in
+        <foreach collection="array" item="name" open="(" close=")"
+                 separator=",">
+            #{name}
+        </foreach>
+    </delete>
+
+    <!-- 根据标签 id 添加使用次数 -->
+    <update id="updateById">
+        update tag
+        set tag_weights = tag_weights + 3
+        where tag_id = #{id}
+    </update>
+
+
+    <!--  根据标签名修改使用次数   -->
+    <update id="updateByNames">
+        update tag
+        set tag_weights = tag_weights + #{num}
+        <where>
+            <foreach collection="list" item="name" open="tag_name in(" close=")"
+                     separator=",">
+                #{name}
+            </foreach>
+        </where>
+    </update>
+
+
+</mapper>

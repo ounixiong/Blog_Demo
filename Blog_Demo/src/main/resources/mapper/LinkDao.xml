@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- namespace：命名空间，自定义唯一值；常规使用 dao 接口全限定名 -->
+<mapper namespace="blog.dao.LinkDao">
+
+    <resultMap id="link" type="blog.empty.Link">
+        <id column="link_id" property="linkId"/>
+        <result column="link_type" property="type"/>
+        <result column="link_name" property="linkName"/>
+        <result column="link_url" property="linkUrl"/>
+        <result column="link_description" property="linkDescription"/>
+        <result column="link_weights" property="linkWeights"/>
+        <result column="create_time" property="createTime"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <sql id="field">
+        link_id
+        ,link_type,link_name,link_url,
+        link_description,link_weights,create_time,deleted
+    </sql>
+
+    <!--获取所有链接记录；按权重排序-->
+    <select id="getAll" resultMap="link">
+        select
+        <include refid="field"/>
+        from link
+        order by link_weights desc
+    </select>
+
+    <select id="getByType" resultMap="link">
+        select
+        <include refid="field"/>
+        from link
+        where link_type = #{type} and deleted = '0'
+        order by link_weights desc
+    </select>
+
+    <!--根据 id 获取链接记录-->
+    <select id="getById" resultMap="link">
+        select
+        <include refid="field"/>
+        from link
+        where deleted = '0' and link_id = #{id}
+    </select>
+
+    <!--根据链接名称获取链接记录-->
+    <select id="getByName" resultMap="link">
+        select
+        <include refid="field"/>
+        from link
+        where deleted = '0' and link_name = #{name}
+    </select>
+
+    <!--统计所有链接数量-->
+    <select id="getCount" resultType="Integer">
+        select count(*)
+        from link
+        where deleted = '0'
+    </select>
+
+    <!--统计所有链接数量-->
+    <select id="getAllCount" resultType="Integer">
+        select count(*)
+        from link
+    </select>
+
+    <!--添加链接-->
+    <insert id="insert">
+        insert into link(link_type, link_name, link_url,
+                         link_description, link_weights, create_time)
+        values (#{type}, #{linkName}, #{linkUrl}, #{linkDescription},
+                #{linkWeights}, now())
+    </insert>
+
+    <!--删除链接-->
+    <update id="remove">
+        update link set deleted = '1'
+        where link_id in
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update">
+        update link set link_id = #{linkId}
+        <if test="type != null">
+            , link_type = #{type}
+        </if>
+        <if test="linkName != null">
+            , link_name = #{linkName}
+        </if>
+        <if test="linkUrl != null">
+            , link_url = #{linkUrl}
+        </if>
+        <if test="linkDescription != null">
+            , link_description = #{linkDescription}
+        </if>
+        <if test="linkWeights != null">
+            , link_weights = #{linkWeights}
+        </if>
+        <if test="deleted != null">
+            , deleted = #{deleted}
+        </if>
+        where link_id = #{linkId}
+    </update>
+
+    <select id="get" resultType="String">
+        select link_name
+        from link
+    </select>
+</mapper>

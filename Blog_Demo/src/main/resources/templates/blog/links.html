@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="blog/fragment/temp :: head(~{ :: title},~{})">
+    <title>十八 | 博客</title>
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav th:replace="blog/fragment/temp :: nav"></nav>
+
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('/resources/blog/img/contact-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <div class="page-heading">
+                    <h1>Links for Friends</h1>
+                    <hr class="small">
+                    <span class="subheading">有朋自远方来 &nbsp;&nbsp; <del>虽远必诛</del> &nbsp; 不亦乐乎</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1" style="font-size: large; padding-top: 10px">
+            <hr/>
+            <dl>
+                <dt>友情链接</dt>
+                <dd style="padding-top: 10px" th:if="${friend.size() == 0}"> &nbsp; &nbsp; &nbsp; 暂时没有友情链接</dd>
+            </dl>
+            <ul style="padding-top: 10px" th:each="friLink : ${friend}">
+                <li> &nbsp; &nbsp; &nbsp;
+                    <i class="fa fa-handshake-o"></i>
+                    <a target="_blank" th:href="@{${friLink.linkUrl}}">[[${friLink.linkName}]]</a>
+                    -- [[${friLink.linkDescription}]]
+                </li>
+            </ul>
+            <hr/>
+            <dl>
+                <dt>推荐链接</dt>
+                <dd style="padding-top: 10px" th:if="${recommend.size() == 0}"> &nbsp; &nbsp; &nbsp; 暂时没有推荐链接</dd>
+            </dl>
+            <ul style="padding-top: 10px" th:each="recLink : ${recommend}">
+                <li> &nbsp; &nbsp; &nbsp;
+                    <i class="fa fa-terminal"></i>&nbsp;
+                    <a target="_blank" th:href="@{${recLink.linkUrl}}">[[${recLink.linkName}]]</a>
+                    -- [[${recLink.linkDescription}]]
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<!-- Footer -->
+<footer th:replace="blog/fragment/temp :: footer"></footer>
+</body>
+
+</html>

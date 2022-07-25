@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- namespace：命名空间，自定义唯一值；常规使用 dao 接口全限定名 -->
+<mapper namespace="blog.dao.ConfigDao">
+
+    <resultMap id="config" type="blog.empty.Config">
+        <id column="config_id" property="configId"/>
+        <result column="config_name" property="configName"/>
+        <result column="config_value" property="configValue"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="filed">
+        config_id
+        , config_name, config_value, update_time
+    </sql>
+
+    <!--获取所有配置项目-->
+    <select id="getAll" resultMap="config">
+        select
+        <include refid="filed"/>
+        from config
+    </select>
+
+    <insert id="insert">
+        insert into config(config_name, config_value)
+        values (#{name}, #{value})
+    </insert>
+
+    <!--获取指定配置项目-->
+    <select id="getByName" resultMap="config">
+        select
+        <include refid="filed"/>
+        from config
+        where config_name = #{name}
+    </select>
+
+
+    <!--修改配置信息-->
+    <update id="update">
+        update config set config_id = #{configId}
+        <if test="configName != null">
+            , config_name = #{configName}
+        </if>
+        <if test="configValue != null">
+            , config_value = #{configValue}
+        </if>
+        , update_time = now()
+        where config_id = #{configId}
+    </update>
+
+</mapper>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- namespace：命名空间，自定义唯一值；常规使用 dao 接口全限定名 -->
+<mapper namespace="blog.dao.AdminUserDao">
+
+    <resultMap id="user" type="blog.empty.AdminUser">
+        <id column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_password" property="passWord"/>
+        <result column="nick_name" property="nickName"/>
+        <result column="status" property="status"/>
+        <result column="roles" property="roles"/>
+        <result column="avatar" property="avatar"/>
+    </resultMap>
+
+    <!--sql 片段-->
+    <sql id="filed">
+        user_id
+        , user_name, user_password, nick_name, status ,roles, avatar
+    </sql>
+
+    <!--通过 id 获取账号信息-->
+    <select id="getAll" resultMap="user">
+        select
+        <include refid="filed"/>
+        from admin_user
+    </select>
+
+    <!--通过 id 获取账号信息-->
+    <select id="getUserById" resultMap="user">
+        select
+        <include refid="filed"/>
+        from admin_user
+        where user_id = #{userId} and status = '0'
+    </select>
+
+    <!--通过用户名获取管理员账号-->
+    <select id="getUserByName" resultMap="user">
+        select
+        <include refid="filed"/>
+        from admin_user
+        where user_name = #{userName} and status = '0'
+    </select>
+
+    <!--添加用户-->
+    <insert id="insert">
+        insert into admin_user(user_name, user_password, nick_name)
+        values (#{userName}, #{passWord}, #{nickName})
+    </insert>
+
+    <!--根据 id 删除用户-->
+    <update id="remove">
+        update admin_user
+        set status = '1'
+        where user_id = #{userId}
+    </update>
+
+    <!--根据 id 恢复用户-->
+    <update id="recover">
+        update admin_user
+        set status = '0'
+        where user_id = #{userId}
+    </update>
+
+    <!--根据 id 修改用户信息-->
+    <update id="update">
+        update admin_user
+        set user_id = #{userId}
+        <if test="userName != null">
+            , user_name = #{userName}
+        </if>
+        <if test="passWord != null">
+            , user_password = #{passWord}
+        </if>
+        <if test="nickName != null">
+            , nick_name = #{nickName}
+        </if>
+        <if test="status != null">
+            , status = #{status}
+        </if>
+        <if test="roles != null">
+            , roles = #{roles}
+        </if>
+        <if test="avatar != null">
+            , avatar = #{avatar}
+        </if>
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateAvatar">
+        update admin_user
+        set avatar = #{avatar}
+        where user_id = #{userId}
+    </update>
+
+    <!--获取用户名集合-->
+    <select id="get" resultType="String">
+        select user_name
+        from admin_user
+    </select>
+
+</mapper>

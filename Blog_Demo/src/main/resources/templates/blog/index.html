@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="blog/fragment/temp :: head(~{ :: title},~{})">
+    <title>十八 | blogs</title>
+</head>
+<style>
+    #myBtn {
+        /*display: none; !* 默认隐藏 *!*/
+        position: fixed;
+        border: none;
+        outline: none;
+        background-color: #393D49; /* 设置背景颜色，你可以设置自己想要的颜色或图片 */
+        color: white; /* 文本颜色 */
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 5px; /* 圆角 */
+        width: 50px;
+        bottom: 50px;
+        left: 15px;
+        z-index: 99;
+    }
+
+    #myBtn:hover {
+        background-color: #555;
+    }
+</style>
+<body>
+
+<!-- Navigation -->
+<nav th:replace="blog/fragment/temp :: nav"></nav>
+
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('/resources/blog/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <div class="site-heading">
+                    <h1 style="font-family: 'Times New Roman',serif">Smile at Life</h1>
+                    <span class="subheading" style="font-family: '华文行楷',serif">生活 学习 奋斗</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="layui-row">
+        <div class="layui-col-md8 layui-col-lg8">
+            <div th:each="blog, blogStat : ${blogs}" th:if="${blogs != null}">
+                <div class="layui-collapse">
+                    <div class="layui-colla-item">
+                        <h2 class="layui-colla-title layui-bg-black">
+                            <a class="title" id="title" style="text-decoration: none; color: white"
+                               th:href="@{|/blog/${blog.blogId}|}">
+                                [[${blogStat.count}]] / [[${blogStat.size}]] ➤
+                                <span class="post-title"
+                                      style="font-family: Consoles,serif; font-size: 18px; font-weight: bold">
+                                            [[${blog.blogTitle}]]
+                                        </span>
+                            </a>
+                        </h2>
+                        <div class="layui-colla-content layui-show">
+                            <div class="layui-field-box" style="font-size: 15px">
+                                <p class="post-subtitle">
+                                    <strong>分类 ➤ </strong>
+                                    <span>
+                                                <a class="layui-badge layui-bg-green"
+                                                   th:href="@{/blogs/(variable = ${blog.blogCate}, flag = false)}">
+                                                    [[${blog.blogCate}]]
+                                                </a>
+                                           </span>
+                                </p>
+                                <p class="post-subtitle">
+                                    <strong>标签 ➤ </strong>
+                                    <span class="tags" th:tags="${blog.getBlogTagName()}"></span>
+                                </p>
+                                <!-- 创建时间、浏览量 -->
+                                <p class="time" th:time="${blog.creatTime}"></p>
+                                <p> 浏览次数 &nbsp;➤ [[${blog.blogViews}]] </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md2 layui-col-lg2  layui-col-lg-offset2 layui-col-md-offset2">
+            <div class="layui-collapse">
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title layui-bg-black">
+                        热门博客
+                    </h2>
+                    <div class="layui-colla-content layui-show">
+                        <ul th:each="views : ${viewsBlog}">
+                            <li style="padding: 10px">
+                                <a th:href="@{|/blog/${views.blogId}|}" th:text="${views.blogTitle}"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="layui-collapse">
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title layui-bg-black">
+                        最新博客
+                    </h2>
+                    <div class="layui-colla-content layui-show">
+                        <ul th:each="news : ${newBlog}">
+                            <li style="padding: 10px">
+                                <a th:href="@{|/blog/${news.blogId}|}" th:text="${news.blogTitle}"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="layui-collapse">
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title layui-bg-black">
+                        热门标签
+                    </h2>
+                    <div class="layui-colla-content layui-show">
+                        <ul th:each="tag : ${tags}">
+                            <li>
+                                <a methods="Post" th:href="@{/blogs/(variable = ${tag}, flag = true)}"
+                                   th:text="${tag}"></a>
+                            </li>&nbsp;
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="layui-collapse">
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title layui-bg-black">
+                        热门分类
+                    </h2>
+                    <div class="layui-colla-content layui-show">
+                        <ul th:each="cate : ${categories}">
+                            <li>
+                                <a th:href="@{/blogs/(variable = ${cate}, flag = false)}" th:text="${cate}"></a>
+                            </li>&nbsp;
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <label for="id">
+        <button id="myBtn" onclick="move()" title="跳转" type="button">
+            <i class="layui-icon layui-icon-right"></i>
+            <input id="id" maxlength="1" min="1" size="1" style="width: 30px;margin-top: 5px"
+                   th:max="${blogs.size()}" type="number">
+        </button>
+    </label>
+</div>
+
+<hr>
+<!-- Footer -->
+<footer th:replace="blog/fragment/temp :: footer"></footer>
+</body>
+</html>
+<link>
+<script th:inline="javascript">
+
+    // <!-- 进入首页携带信息时进行显示 -->
+    let message = [[${message}]]
+    if (message != null) {
+        layer.msg('', {
+            content: '<strong style="color: red">' + message + '</strong>'
+        })
+    }
+
+    // 跳转到指定编号博客
+    function move() {
+        let id = $('#id').val()
+        $(".title")[id - 1].scrollIntoView();
+    }
+
+
+    //遍历添加时间节点
+    let times = document.getElementsByClassName('time')
+    for (let i = 0; i < times.length; i++) {
+        let time = document.getElementsByClassName('time')[i].getAttribute('time')
+        document.getElementsByClassName('time')[i].innerHTML = '创建时间  &nbsp;➤ ' + new Date(time).toLocaleString()
+    }
+
+    //遍历标签节点
+    let tags = document.getElementsByClassName('tags')
+    for (let i = 0; i < tags.length; i++) {
+        let tags = document.getElementsByClassName('tags')[i].getAttribute('tags')
+        let tagArray = tags.trim().split(/\s+/g)
+        let result = '';
+        for (let i = 0; i < tagArray.length; i++) {
+            result += `<a class="layui-badge layui-bg-cyan" href="/blogs?variable=${tagArray[i]}&flag=true"> `
+                + tagArray[i] + '</a> '
+        }
+        document.getElementsByClassName('tags')[i].innerHTML = result
+    }
+
+    layui.use(['layer', 'element'], function () {
+        let layer = layui.layer,
+            element = layui.element;
+
+        let blogs = [[${blogs}]]
+        if (blogs.length === 0) {
+            $('#message').text("暂时未添加博客")
+            layer.msg('暂时未添加博客', {
+                time: 3000
+            })
+        }
+    });
+</script>
+

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- namespace：命名空间，自定义唯一值；常规使用 dao 接口全限定名 -->
+<mapper namespace="blog.dao.CommentDao">
+
+    <resultMap id="comm" type="blog.empty.Comment">
+        <id column="comment_id" property="commentId"/>
+        <result column="blog_id" property="blogId"/>
+        <result column="commentator" property="commentator"/>
+        <result column="tel_num" property="telNum"/>
+        <result column="comment_time" property="commentTime"/>
+        <result column="comment_body" property="commentBody"/>
+        <result column="deleted" property="deleted"/>
+        <result column="reply" property="reply"/>
+        <result column="reply_time" property="replyTime"/>
+    </resultMap>
+
+    <sql id="field">
+        comment_id
+        , blog_id, commentator,tel_num, comment_time,
+        comment_body, deleted, reply, reply_time
+    </sql>
+
+    <!-- 获取所有评论 -->
+    <select id="get" resultMap="comm">
+        select
+        <include refid="field"/>
+        from comment
+    </select>
+
+    <!-- 根据博客 id 获取评论 -->
+    <select id="getById" resultMap="comm">
+        select
+        <include refid="field"/>
+        from comment
+        where deleted = '0' and blog_id = #{blogId}
+        order by comment_time desc
+    </select>
+
+    <!-- 根据评论 id 获取评论 -->
+    <select id="getByCommId" resultMap="comm">
+        select blog_id
+        from comment
+        where deleted = '0'
+          and comment_id = #{id}
+        order by comment_time desc
+    </select>
+
+    <!-- 通过评论id获取博客标题 -->
+    <select id="getBlogTitle" resultType="string">
+        select blog_title
+        from blog g,
+             comment c
+        where c.comment_id = #{id}
+          and g.blog_id = c.blog_id
+    </select>
+
+    <!-- 根据博客 id 获取所有评论 -->
+    <select id="getAllById" resultMap="comm">
+        select
+        <include refid="field"/>
+        from comment
+        where blog_id = #{blogId}
+        order by comment_time desc
+    </select>
+
+    <!-- 获取评论数量 -->
+    <select id="getCount" resultType="Integer">
+        select count(*)
+        from comment
+        where deleted = '0'
+    </select>
+
+    <!-- 获取指定博客评论数量 -->
+    <select id="getCountByBlogId" resultType="Integer">
+        select count(*)
+        from comment
+        where deleted = '0'
+          and blog_id = #{blogId}
+    </select>
+
+    <!-- 添加评论 -->
+    <insert id="insertComm">
+        insert into comment(blog_id, commentator, tel_num, comment_time, comment_body)
+        values (#{blogId}, #{commentator}, #{telNum}, now(), #{commentBody})
+    </insert>
+
+    <!--添加回复-->
+    <update id="insertReply">
+        update comment
+        set reply      = #{reply},
+            reply_time = now()
+        where comment_id = #{commentId}
+    </update>
+
+    <!-- 删除评论 -->
+    <update id="remove">
+        update comment
+        set deleted = '1'
+        where comment_id in
+        <foreach collection="array" separator="," item="id" open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

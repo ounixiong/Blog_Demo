@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="zh" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      xmlns:th="http://www.thymeleaf.org">
+<!-- 页面头模板，自定义标题替换，追加 links 引用 -->
+<head th:fragment="head(title, links)">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+    <title th:replace="${title}">Manager</title>
+    <!-- 网站图标 -->
+    <link rel="shortcut icon" th:href="@{/resources/common/images/favicon-32x32.png}">
+    <!-- 字体图标 -->
+    <link rel="stylesheet" th:href="@{/resources/admin/login/css/font-awesome.min.css}">
+    <!-- layui css 样式表 -->
+    <link rel="stylesheet" th:href="@{/resources/common/layui/css/layui.css}">
+    <!-- layui.js -->
+    <script th:src="@{/resources/common/layui/layui.js}"></script>
+    <!-- JQuery -->
+    <script th:src="@{/resources/common/js/jquery-3.6.0.js}"></script>
+    <!-- 额外自定义引用 -->
+    <th:block th:replace="${links}"/>
+</head>
+
+<!-- 页面body模板，自定义content替换主体部分 -->
+<body th:fragment="body(content)">
+<div class="layui-layout layui-layout-admin">
+    <!-- 页面顶部 -->
+    <div class="layui-header">
+        <div class="layui-logo  layui-bg-black">
+            <a id="index" style="font-family: 华文隶书,serif; font-size: x-large; color: #D3D3D3" th:href="@{/admin/index}"
+               title="主页">
+                二三 | 博客
+                <button hidden id="btn" type="button"></button>
+            </a>
+        </div>
+        <!-- 头部区域（可配合layui 已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <!-- 移动端显示 layui-hide-sm -->
+            <li class="layui-nav-item layui-show-xs-inline-block"
+                lay-header-event="menuLeft" title="隐藏 | 展开">
+                <i class="layui-icon layui-icon-spread-left" id="leftEnumIcon"></i>
+            </li>
+
+            <li class="layui-nav-item layui-hide-xs">
+                <a th:href="@{/admin/blog/create}">写博客</a>
+            </li>
+            <li class="layui-nav-item layui-hide-xs">
+                <a th:href="@{/admin/blog/blogs}">博客</a>
+            </li>
+            <li class="layui-nav-item layui-hide-xs">
+                <a th:href="@{/admin/links}">友链</a>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:">选项</a>
+                <dl class="layui-nav-child">
+                    <dd><a th:href="@{/index}">前 &nbsp; &nbsp;台</a></dd>
+                    <dd><a th:href="@{/admin/blog/comment}">评 &nbsp; &nbsp;论</a></dd>
+                    <dd><a th:href="@{/admin/blog/recycle}">回收站</a></dd>
+                    <dd><a th:href="@{/logout}">退 &nbsp; &nbsp;出</a></dd>
+                </dl>
+            </li>
+        </ul>
+        <!-- 顶部右侧 -->
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item layui-hide layui-show-md-inline-block">
+                <a href="javascript:" title="">
+                    <img alt="" class="layui-nav-img"
+                         id="userAvatar" src="">
+                    <!-- 用户名 -->
+                    <span id="user-name"></span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="#" id="user">信 息</a></dd>
+                    <dd><a th:href="@{/admin/user}">管 理</a></dd>
+                    <dd><a th:href="@{/logout}">退 出</a></dd>
+                </dl>
+            </li>
+            <!-- 右侧图标 -->
+            <li class="layui-nav-item" id="right" lay-header-event="menuRight" lay-unselect>
+                <a href="javascript:">
+                    <i class="layui-icon layui-icon-more-vertical">
+                        <span class="layui-badge-dot layui-bg-orange" id="tips"></span>
+                    </i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- 侧边栏 -->
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item ">
+                    <a th:href="@{/admin/index}" title="主页">
+                        <i class="fa fa-home"
+                           style="color: white"></i>
+                        &nbsp;&nbsp;<span>Panel</span>
+                    </a>
+                </li>
+                <li class="layui-nav-item">
+                    <a th:href="@{/admin/blog/create}" title="写博客">
+                        <i class="fa fa-edit"
+                           style="color: white"></i>
+                        &nbsp;&nbsp;<span>Create</span>
+                    </a>
+                </li>
+                <li class="layui-nav-item ">
+                    <a class="" href="javascript:" title="博客管理">
+                        <i class="fa fa-server"
+                           style="color: white"></i>
+                        &nbsp;&nbsp;<span>博&nbsp;&nbsp;客</span>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a th:href="@{/admin/blog/blogs}" title="博客列表">
+                                <i class="fa fa-book"
+                                   style="color: white"></i>
+                                &nbsp;&nbsp;<span>博 &nbsp; &nbsp;客</span>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a th:href="@{/admin/blog/categories}" title="分类信息">
+                                <i aria-hidden="true" class="fa fa-tachometer"
+                                   style="color: white"></i>
+                                &nbsp;&nbsp;<span>分 &nbsp; &nbsp;类</span>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a th:href="@{/admin/blog/tags}" title="标签信息">
+                                <i class="fa fa-tags"
+                                   style="color: white"></i>
+                                &nbsp;&nbsp;<span>标 &nbsp; &nbsp;签</span>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a th:href="@{/admin/blog/comment}" title="博客评论">
+                                <i class="fa fa-tags"
+                                   style="color: white"></i>
+                                &nbsp;&nbsp;<span>评 &nbsp; &nbsp;论</span>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a th:href="@{/admin/blog/recycle}" title="回收站">
+                                <i class="fa fa-tags"
+                                   style="color: white"></i>
+                                &nbsp;&nbsp;<span>回收站</span>
+                            </a>
+                        </dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:" title="设置">
+                        <i class="fa fa-gears"
+                           style="color: white"></i>
+                        &nbsp;&nbsp;<span>设&nbsp;&nbsp;置</span>
+                    </a>
+
+                    <dl class="layui-nav-child">
+                        <dd>
+                            <a th:href="@{/admin/user}">
+                                <i class="fa fa-user-o"
+                                   style="color: white"></i>
+                                &nbsp;&nbsp;<span>用户设置</span>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a th:href="@{/admin/setting}">
+                                <i class="fa fa-gear"
+                                   style="color: white"></i>
+                                &nbsp;&nbsp;<span>个人设置</span>
+                            </a>
+                        </dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a th:href="@{/admin/links}" title="友情链接">
+                        <i class="fa fa-link"
+                           style="color: white"></i>
+                        &nbsp;&nbsp;<span>友链</span>
+                    </a>
+                </li>
+                <li class="layui-nav-item">
+                    <a th:href="@{/logout}" title="退出">
+                        <i class="fa fa-power-off"
+                           style="color: white"></i>
+                        &nbsp;&nbsp;<span>登&nbsp;&nbsp;出</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <th:block th:replace="${content}">
+            <!-- 内容主体区域，在各页面使用模板替换 -->
+        </th:block>
+    </div>
+    <!-- 页脚 -->
+    <div class="layui-footer" style="background: #D3D3D3; display: flex; justify-content: space-between">
+        <span style="text-align: left;font-family: 华文隶书,serif;
+              font-size: medium ;margin-left: 8px">
+            Smile at Life
+            <span id="userData" property="nickName" shiro:principal></span>
+        </span>
+        <span style="
+              font-family: 'Times New Roman',sans-serif;
+              font-size: medium; margin-right: 10px">
+            Copyright &copy; 2022 二三 &nbsp;| &nbsp;Design By
+            <a href="https://www.templatemo.com" target="_blank">
+                templatemo
+            </a>
+        </span>
+    </div>
+</div>
+</body>
+
+<!-- 各页面通用 JS 脚本模板 -->
+<script th:fragment="JS" th:inline="javascript">
+    // <!-- 获取用户信息 -->
+    $('#user').click(function () {
+        userDate()
+    });
+
+    let user = null;
+    let commentData = null;
+
+
+    //页面加载时执行任务
+    window.onload = function () {
+        // 页面加载时获取当前用户信息
+        $.ajax({
+            url: '/admin/user/userInfo',
+            type: 'Post',
+            success: function (data) {
+                document.getElementById('userAvatar').src = data.avatar
+                document.getElementById('user-name').innerText = data.userName + '  '
+                user = data;
+            }
+        })
+        // 获取未读博客评论数据
+        $.ajax({
+            url: "/admin/commentData"
+            , type: 'Post'
+            , success: function (data) {
+                commentData = data;
+                if (commentData.length <= 0) {
+                    $('#tips').hide()
+                } else {
+                    $('#tips').show()
+                }
+            }
+        })
+    }
+
+
+    //显示当前用户信息
+    function userDate() {
+        let userId = user.userId;
+        let userName = user.userName;
+        let nickName = user.nickName;
+        let roles = user.roles;
+        let status = user.status === '0' ? '正常' : '异常';
+        let avatar = user.avatar;
+        layer.open({
+            type: 1
+            , title: ['账号信息', 'margin: 10px 20px 10px; font-family: Consolas,serif; font-weight: 600']
+            , content: `<div style="padding: 15px;">
+                        <div style="margin: 10px 20px 10px; font-family: Consolas,serif">
+                            <strong>用户ID&nbsp;: ${userId}</strong>
+                        </div>
+                        <div style="margin: 10px 20px 10px; font-family: Consolas,serif">
+                            <strong>用户名&nbsp;: ${userName}</strong>
+                        </div>
+                        <div style="margin: 10px 20px 10px; font-family: Consolas,serif">
+                            <strong>昵&nbsp;&nbsp;称&nbsp;: ${nickName}</strong>
+                        </div>
+                        <div style="margin: 10px 20px 10px; font-family: Consolas,serif">
+                            <strong>角&nbsp;&nbsp;色&nbsp;: ${roles}</strong>
+                        </div>
+                        <div style="margin: 10px 20px 10px; font-family: Consolas,serif">
+                            <strong>账号状态: ${status}</strong>
+                        </div>
+                         <div style="margin: 10px 20px 10px; font-family: Consolas,serif">
+                            <strong>头 &nbsp;&nbsp;像&nbsp;:</strong>
+                             <img width="120px" src="${avatar}" alt="用户头像">
+                        </div>
+                        </div>`
+            , area: ['240px', '100%']
+            , offset: 'rt' //右上角
+            , anim: 5
+            , shadeClose: true
+        });
+    }
+
+    //收放侧边栏
+    layui.use(['element', 'layer', 'util', 'table', 'form'], function () {
+        let element = layui.element
+            , layer = layui.layer
+            , util = layui.util
+            , table = layui.table
+            , form = layui.form
+            , $ = layui.$;
+
+        let isShow = true;
+
+        //头部事件
+        util.event('lay-header-event', {
+            //左侧菜单事件
+            menuLeft: function () {
+                //选择出所有的span，并判断是不是hidden
+                $('.layui-nav-item span').each(function () {
+                    if ($(this).is(':hidden')) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                    if (commentData.length <= 0) {
+                        $('#tips').hide()
+                    } else {
+                        $('#tips').show()
+                    }
+                });
+                //判断isshow的状态
+                if (isShow) {
+                    $('.layui-side.layui-bg-black').width(60); //设置宽度
+                    $('.kit-side-fold i').css('margin-right', '90%');  //修改图标的位置
+                    //将footer和body的宽度修改
+                    $('.layui-body').css('left', 60 + 'px');
+                    $('.layui-footer').css('left', 60 + 'px');
+                    //将二级导航栏隐藏
+                    $('dd span').each(function () {
+                        $(this).hide();
+                    });
+                    //修改标志位
+                    isShow = false;
+                } else {
+                    $('.layui-side.layui-bg-black').width(200);
+                    $('.kit-side-fold i').css('margin-right', '10%');
+                    $('.layui-body').css('left', 200 + 'px');
+                    $('.layui-footer').css('left', 200 + 'px');
+                    $('dd span').each(function () {
+                        $(this).show();
+                    });
+                    isShow = true;
+                }
+
+            },
+            // 右侧菜单事件
+            menuRight: function () {
+                let data = commentData.data
+                let arr = '';      // 拼接HTML语句
+                let num = 0;      // 总评论数量
+                for (let key in data) {
+                    let comData = data[key]
+                    num += comData.num
+                    arr += '<li style="margin-top: 10px ">博客 ' +
+                        '<a style="color = #03A9F4" href="/admin/blog/comment">' +
+                        comData.blogTitle + ' </a>有 ' + comData.num + ' 条未读评论<li/>'
+                }
+                if (commentData.length <= 0) {
+                    layer.tips('暂无未读评论', '#right', {
+                        tips: [1, '#78BA32']
+                        , time: 1400
+                        , shadeClose: true
+                    });
+                    return false;
+                }
+                // 存在未读评论
+                layer.open({
+                    type: 1
+                    , title: '<strong style="font-weight: bold">未读评论</strong>'
+                    , content: '<ol style="margin: 20px 10px; font-family: 楷书,serif; font-weight: bold">' +
+                        '<li style="font-family: 华文新魏">共有 ' + num + ' 条未读评论</li>'
+                        + arr +
+                        '</ol>'
+                    , area: ['240px', '100%']
+                    , offset: 'rt' //右上角
+                    , anim: 5
+                    , shadeClose: true
+                });
+
+            }
+        });
+    });
+</script>
+</html>

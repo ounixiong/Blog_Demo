@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="blog/fragment/temp :: head(~{ :: title},~{})">
+    <title>十八 | 归档</title>
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav th:replace="blog/fragment/temp :: nav"></nav>
+
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('/resources/admin/login/images/bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <div class="page-heading">
+                    <h1>Hisory for Blogs</h1>
+                    <hr class="small">
+                    <span class="subheading" style="font-family: 隶书,serif">记录学习过程的点点滴滴</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1" style="font-size: large; padding-top: 10px">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                <legend><h2>博客归档记录</h2></legend>
+            </fieldset>
+            <hr class="layui-border-green"/>
+            <ul class="layui-timeline" th:each="blog : ${blogs}">
+                <li class="layui-timeline-item">
+                    <i class="layui-icon layui-timeline-axis"></i>
+                    <div class="layui-timeline-content layui-text">
+                        <h4 class="layui-timeline-title time" th:time="${blog.creatTime}"></h4>
+                        <a th:href="@{|/blog/${blog.blogId}|}">
+                            <h3 th:text="${blog.blogTitle}">
+                                <i class="layui-icon"></i>
+                            </h3>
+                        </a>
+                        <ul>
+                            <li class="post-subtitle">
+                                <strong>标签 ➤ </strong>
+                                <span class="tags" th:tags="${blog.getBlogTagName()}">
+                           </span>
+                            </li>
+                            <li class="post-subtitle">
+                                <strong>类别 ➤ </strong>
+                                <span>
+                                <a class="layui-badge layui-bg-orange" th:text="${blog.blogCate}"></a>
+                           </span>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<!-- Footer -->
+<footer th:replace="blog/fragment/temp :: footer"></footer>
+</body>
+
+</html>
+<script>
+    //遍历添加时间节点
+    let times = document.getElementsByClassName('time')
+    console.log(times)
+    for (let i = 0; i < times.length; i++) {
+        console.log("遍历时间节点")
+        let time = document.getElementsByClassName('time')[i].getAttribute('time')
+        document.getElementsByClassName('time')[i].innerHTML = new Date(time).toLocaleString()
+    }
+
+    //遍历标签节点
+    let tags = document.getElementsByClassName('tags')
+    console.log(tags)
+    for (let i = 0; i < tags.length; i++) {
+        let tags = document.getElementsByClassName('tags')[i].getAttribute('tags')
+        let tagArray = tags.trim().split(/\s+/g)
+        let result = '';
+        for (let i = 0; i < tagArray.length; i++) {
+            result += '<a class="layui-badge layui-bg-cyan"> ' + tagArray[i] + '</a> '
+        }
+        document.getElementsByClassName('tags')[i].innerHTML = result
+    }
+</script>

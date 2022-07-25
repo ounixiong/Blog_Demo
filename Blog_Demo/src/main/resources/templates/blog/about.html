@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="blog/fragment/temp :: head(~{ :: title},~{})">
+    <title>十八 | about</title>
+</head>
+<!-- editor.md 样式表 -->
+<link rel="stylesheet" th:href="@{/resources/md/css/editormd.css}">
+<body>
+
+<!-- Navigation -->
+<nav th:replace="blog/fragment/temp :: nav"></nav>
+
+<header class="intro-header" style="background-image: url('/resources/blog/img/about-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <div class="page-heading">
+                    <h1>About Me</h1>
+                    <span class="subheading">This is what I do.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <div id="doc-content">
+                    <textarea id="append-test" style="display:none;">[[${about.blogContent}]]</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<hr>
+
+<!-- Footer -->
+<footer th:replace="blog/fragment/temp :: footer"></footer>
+
+</body>
+
+</html>
+
+<script th:src="@{/resources/md/lib/marked.min.js}"></script>
+<script th:src="@{/resources/md/lib/prettify.min.js}"></script>
+<script th:src="@{/resources/md/lib/raphael.min.js}"></script>
+<script th:src="@{/resources/md/lib/underscore.min.js}"></script>
+<script th:src="@{/resources/md/lib/sequence-diagram.min.js}"></script>
+<script th:src="@{/resources/md/lib/flowchart.min.js}"></script>
+<script th:src="@{/resources/md/lib/jquery.flowchart.min.js}"></script>
+<script th:src="@{/resources/md/editormd.js}"></script>
+<script th:src="@{/resources/md/editormd.amd.min.js}"></script>
+<script>
+    $(function () {
+        editormd.markdownToHTML("doc-content", {
+            htmlDecode: "style,script,iframe",  // you can filter tags decode
+            emoji: true,
+            taskList: true,
+            tex: true,  // 默认不解析
+            flowChart: true,  // 默认不解析
+            sequenceDiagram: true,  // 默认不解析
+        });
+    });
+</script>

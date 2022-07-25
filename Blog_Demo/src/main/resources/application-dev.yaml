@@ -1,0 +1,43 @@
+spring:
+  # 配置数据源
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/blog?useUnicide=true&encodingCharacter=UTF-8&serverTimezone=GMT%2B8
+    hikari:
+      username: root
+      password: 123456
+  servlet:
+    multipart:
+      max-request-size: 50MB
+      max-file-size: 50MB
+  # 关闭 Thymeleaf 缓存
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+# MyBatis 配置
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  # 打印 sql 语句执行日志
+  configuration.log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#使用 SpringBoot 的字符过滤器
+server:
+  servlet:
+    encoding:
+      # 强制应答和请求使用 encoding 编码
+      enabled: true
+      force: true
+      # 设置字符格式为 utf-8
+      charset: utf-8
+      force-request: true
+      force-response: true
+  tomcat:
+    uri-encoding: UTF-8
+# 分页配置
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql

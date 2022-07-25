@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh"
+      xmlns:th="http://www.thymeleaf.org">
+<!-- 引入页面头模板  -->
+<head th:replace="admin/fragment/temp :: head(~{:: title}, ~{})">
+    <title>二三 | setting</title>
+</head>
+<!-- 引入body模板 -->
+<body th:replace="admin/fragment/temp :: body(~{:: content})">
+<!-- 自定义页面内容 -->
+<div th:fragment="content">
+    <div class="layui-row layui-col-space30" style="margin-left: 50px">
+        <div class="layui-card layui-bg-black layui-col-md3 layui-col-lg3"
+             style=" height:600px; margin: 30px 40px">
+            <div class="layui-card-header" style="color: white; text-align: center">头像设置</div>
+            <br/>
+            <div class="layui-card-body" style="margin-left: 15px">
+                <div>
+                    当前头像 &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span>
+                        <img alt="当前用户头像" src="" th:src="@{${user.avatar}}"
+                             width="40%">
+                    </span>
+                </div>
+            </div>
+            <br/>
+            <button class="layui-btn layui-btn-primary layui-border-orange layui-btn-fluid"
+                    id="avatar" type="button">更换
+            </button>
+            <div class="layui-upload">
+                <button class="layui-btn layui-btn-primary layui-border-orange layui-btn-fluid"
+                        id="upAvatar" type="button">上传
+                </button>
+                <div class="layui-upload-list" style="text-align: center">
+                    <img alt="" class="layui-upload-img" id="picture" src="">
+                    <p id="demoText"></p>
+                </div>
+                <div style="width: 100px; margin:0 auto">
+                    <div class="layui-progress layui-progress-big" lay-filter="demo"
+                         lay-showpercent="yes">
+                        <div class="layui-progress-bar" lay-percent=""></div>
+                    </div>
+                    <br/>
+                    <div hidden id="upload">
+                        <button class="layui-btn layui-btn-primary layui-border-green layui-btn-fluid"
+                                id="upload-avatar" type="button">确认
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card layui-bg-black layui-col-md3 layui-col-lg3"
+             style=" height:600px; margin: 30px">
+            <div class="layui-card-header" style="color: white; text-align: center">账号信息</div>
+            <div class="layui-card-body">
+                <form action="" class="layui-form layui-form-pane"
+                      style="margin-top: 20px;color: black; background: black">
+                    <div class="layui-form-item" hidden>
+                        <label class="layui-form-label">用户ID</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" lay-verify="required" name="userId"
+                                   readonly th:value="${user.userId}" type="text">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户名</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" lay-verify="required" name="userName"
+                                   placeholder="请输入用户名" th:value="${user.userName}" type="text">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">原密码</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" lay-verify="required" name="oldPassWord"
+                                   placeholder="原密码（必填）" type="password">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">新密码</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" name="newPassWord"
+                                   placeholder="新密码" type="password">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" hidden>
+                        <label class="layui-form-label">密码</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" name="passWord"
+                                   th:value="${user.passWord}" type="password">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">昵称</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" lay-verify="required" name="nickName"
+                                   placeholder="请输入昵称" th:value="${user.nickName}" type="text">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" lay-verify="required"
+                                   name="status"
+                                   readonly th:value="${user.status == '0' ? '正常' : '已锁定'}" type="text">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">权限</label>
+                        <div class="layui-input-block">
+                            <input autocomplete="off" class="layui-input" lay-verify="required" name="roles"
+                                   readonly th:value="${user.roles}" type="text">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="margin-top: 25px">
+                        <button class="layui-btn layui-btn-primary layui-border-orange layui-btn-fluid" id="subBtn"
+                                lay-filter="updateUser" lay-submit type="button">
+                            确认
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="layui-card layui-bg-black layui-col-md3 layui-col-lg3"
+             style=" height:600px; margin: 30px">
+            <div class="layui-card-header" style="color: white; text-align: center">敬请欣赏</div>
+            <div class="layui-card-body">
+                <video controls style="width:100%; object-fit: fill; margin-top: 40%"
+                       th:src="@{/upload/xuanzi.mp4}" title="早木璇子">
+                </video>
+                <strong style="margin-left: 40%">早木璇子</strong>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script th:replace="admin/fragment/temp :: JS"></script>
+<script th:inline="javascript">
+    layui.use(['upload', 'element', 'layer', 'flow', 'form'], function () {
+        let $ = layui.jquery
+            , upload = layui.upload
+            , element = layui.element
+            , layer = layui.layer
+            , flow = layui.flow
+            , form = layui.form
+        user = [[${user}]]
+
+        // 更新用户头像
+        avatar = function (obj) {
+            console.log(obj)
+            let src = obj.getAttribute('src')
+            let userId = user.userId
+            console.log(src)
+            $.ajax({
+                url: '/admin/user/updateAvatar'
+                , type: 'Post'
+                , data: {
+                    avatar: src,
+                    userId: userId
+                }
+                , success: function (data) {
+                    if (data.code === 1) {
+                        layer.msg(data.message, {
+                            time: 1200,
+                            end: function () {
+                                layer.closeAll()
+                                location.reload()
+                            }
+                        })
+                    } else {
+                        layer.msg('', {
+                            time: 1200,
+                            content: '<strong style="color: red">${data.message}</strong>',
+                        })
+                    }
+                }
+            })
+        }
+
+        // 获取用户头像
+        $('#avatar').click(function () {
+            console.log('触发头像获取')
+            $.ajax({
+                url: '/admin/user/setting/avatar'
+                , type: 'Post'
+                , success: function (data) {
+                    console.log("获取头像配置")
+                    console.log(data)
+                    let pictures = data.data;
+                    let length = pictures.length;
+                    if (length == null || length <= 1) {
+                        layer.msg('', {
+                            time: 1200,
+                            content: '<strong style="color: red">暂无额外头像，可先上传</strong>'
+                        })
+                        return false;
+                    }
+                    let result = '';
+                    for (let i = 0; i < length; i++) {
+                        result += '<img alt="" src="/avatar/img.png"  onclick="avatar(this)" width="100px" ' +
+                            'style="padding: 10px" lay-src="' + pictures[i].configValue + '">'
+                    }
+                    console.log(result)
+                    layer.open({
+                        type: 1
+                        , title: '<h3>单击选择头像</h3>'
+                        , area: ['600px', '500px']
+                        , content: '<div class="site-demo-flow" id="LAY_demo3">' + result + ' </div>'
+                        , shade: 0.6
+                        , shadeClose: true
+                        , success: function () {
+                            // 按屏加载图片
+                            flow.lazyimg({
+                                elem: '#LAY_demo3 img'
+                                , scrollElem: '#LAY_demo3' //一般不用设置，此处只是演示需要。
+                            });
+                        }
+                    })
+                }
+            })
+
+        })
+
+        //常规使用 - 上传头像
+        let uploadInst = upload.render({
+            elem: '#upAvatar'
+            , url: '/file/avatar' //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+            , method: 'Post'
+            , auto: false
+            , bindAction: '#upload-avatar'
+            , accept: 'images'//指定允许上传时校验的文件类型
+            , acceptMime: 'image/*'//规定打开文件选择框时，筛选出的文件类型，值为用逗号隔开的 MIME 类型列表
+            , field: 'avatar'//设定文件域的字段名
+            , exts: 'jpg|png|gif|bmp|jpeg'// 设置允许上传的格式
+            , size: 102400//限制文件大小10M
+            , multiple: false
+            , choose: function (obj) {
+                obj.preview(function (index, file, result) {
+                    if (file !== null) {
+                        document.getElementById('upload').hidden = false
+                    }
+                    $('#picture').attr('src', result); //图片链接（base64）
+                    $('#picture').attr('width', '50%'); //图片链接（base64）
+                    console.log(index); //得到文件索引
+                    console.log(file); //得到文件对象
+
+                })
+                element.progress('demo', '0%'); //进度条复位
+                layer.msg('预览图片，点击确认上传', {time: 1200});
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code === 2) {
+                    return layer.msg('<strong style="color: red">上传失败</strong>');
+                } else if (res.code === 1) {
+                    layer.msg('上传成功', {time: 1200})
+                }
+                //上传成功的一些操作
+                //……
+                $('#demoText').html(''); //置空上传失败的状态
+            }
+            , error: function () {
+                //演示失败状态，并实现重传
+                let demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function () {
+                    uploadInst.upload();
+                });
+            }
+            //进度条
+            , progress: function (n, elem, e) {
+                element.progress('demo', n + '%'); //可配合 layui 进度条元素使用
+                if (n === 100) {
+                    layer.msg('上传完毕', {icon: 1});
+                }
+            }
+        });
+
+        // 修改账号信息
+        form.on('submit(updateUser)', function (data) {
+            console.log('修改用户信息')
+            console.log(data.field)
+            let user = data.field;
+            $.ajax({
+                url: '/admin/user/updateUser',
+                data: {
+                    userId: user.userId,
+                    userName: user.userName,
+                    passWord: user.passWord,
+                    nickName: user.nickName,
+                    oldPassWord: user.oldPassWord,
+                    newPassWord: user.newPassWord,
+                },
+                type: 'Post',
+                success: function (data) {
+                    if (data.code === 1) {
+                        layer.msg('修改成功，自动重新登录', {
+                            time: 1500,
+                            end: function () {
+                                //当修改成功时自动进行登录
+                                $.ajax({
+                                    url: '/admin/login',
+                                    data: {
+                                        'username': user.userName,
+                                        'password': function () {
+                                            if (user.newPassWord !== null && user.newPassWord !== '') {
+                                                return user.newPassWord
+                                            }
+                                            return user.oldPassWord
+                                        },
+                                        'remember': false
+                                    }
+                                    ,
+                                    type: 'Post',
+                                    success: function (data) {
+                                        if (data.code === 1) {
+                                            location.href = '/admin/index'
+                                        } else {
+                                            locationbar.href = '/admin/toLogin'
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    } else if (data.code === 2) {
+                        layer.msg('', {
+                            time: 1500,
+                            content: '<strong style="color: red">' + data.message + '</strong>'
+                        })
+                    }
+                }
+            })
+        })
+    })
+</script>
+</html>

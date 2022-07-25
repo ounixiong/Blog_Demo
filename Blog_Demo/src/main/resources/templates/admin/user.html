@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh"
+      xmlns:th="http://www.thymeleaf.org">
+<!-- 引入页面头模板  -->
+<head th:replace="admin/fragment/temp :: head(~{:: title}, ~{})">
+    <title>二三 | users</title>
+</head>
+<!-- 引入body模板 -->
+<body th:replace="admin/fragment/temp :: body(~{:: content})">
+<!-- 自定义页面内容 -->
+<div th:fragment="content">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>账号数据（Tips：点击提示查看数据操作提示）</legend>
+    </fieldset>
+    <table class="layui-hide" id="users" lay-filter="users"></table>
+    <script id="toolbarDemo" type="text/html">
+        <div class="layui-btn-container">
+            <button class="layui-btn layui-btn-sm" lay-event="userData">当前账户</button>
+        </div>
+    </script>
+    <script id="barDemo" type="text/html">
+        <a class="layui-btn layui-btn-xs" lay-event="edit" id="edit">修改</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" id="del" lay-event="del">锁定</a>
+        <a class="layui-btn layui-btn-warm layui-btn-xs" id="recover" lay-event="recover">恢复</a>
+    </script>
+
+</div>
+</body>
+<script th:replace="admin/fragment/temp :: JS"></script>
+<script th:inline="javascript">
+    layui.use(['table', 'form'], function () {
+        let table = layui.table,
+            form = layui.form,
+            $ = layui.jquery
+        let userTab = table.render({
+            elem: '#users'
+            , url: '/admin/userData'
+            , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+                title: '提示'
+                , layEvent: 'LAYTABLE_TIPS'
+                , icon: 'layui-icon-tips'
+            }]
+            , title: '账号数据表'
+            , cols: [
+                [
+                    {type: 'checkbox', fixed: 'left'}
+                    , {field: 'userId', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true, hide: true}
+                    , {
+                    field: 'userName', title: '用户名', width: 160
+                }
+                    , {field: 'nickName', title: '昵称', width: 100}
+                    , {
+                    field: 'status', title: '状态', sort: true, width: 190, templet: function (res) {
+                        if (res.status === '0') return '正常';
+                        if (res.status === '1') {
+                            $('#del').text('解锁')
+                            return '已锁定'
+                        }
+                        return '异常';
+                    }
+                }
+                    , {field: 'roles', title: '权限', width: 75, sort: true},
+                    {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 180}
+                ]
+            ]
+            , page: true
+            , limit: 8
+            , limits: [8, 10, 12, 15, 20]
+            , done: function (res, curr, count) {
+                //如果是异步请求数据方式，res即为你接口返回的信息。
+                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+                console.log(res);
+                //得到数据总量
+                if (count === 0) {
+                    layer.msg('没有已注册用户', {
+                        area: ['260px', '100px'],
+                        time: 1200
+                    })
+                }
+                console.log('账户数量= ' + count);
+            }
+        });
+
+        //头工具栏事件
+        table.on('toolbar(users)', function (obj) {
+            let colData = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                case 'userData':
+                    console.log("获取用户信息")
+                    $.ajax({
+                        url: '/admin/user/userInfo',
+                        type: 'Post',
+                        success: function (user) {
+                            console.log(user)
+                            let userInfo = layer.open({
+                                id: 1000001,
+                                type: 1,
+                                shade: 0.7,
+                                area: ['600px', '500px'],
+                                shadeClose: true,
+                                title: '<strong style="margin-left: 48%">信息修改</strong>',
+                                time: -1,
+                                btn: ['修改', '取消'],
+                                content: `<form class="layui-form layui-form-pane" action="" style="margin-top: 20px;color: black">
+                                      <div class="layui-form-item" hidden>
+                                        <label class="layui-form-label">用户ID</label>
+                                        <div class="layui-input-block">
+                                          <input type="text" name="userId" lay-verify="required" value="${user.userId}"
+                                                autocomplete="off" class="layui-input" readonly >
+                                        </div>
+                                      </div>
+                                     <div class="layui-form-item">
+                                        <label class="layui-form-label">用户名</label>
+                                        <div class="layui-input-block">
+                                          <input type="text" name="userName" lay-verify="required" placeholder="请输入用户名"
+                                                value="${user.userName}" autocomplete="off" class="layui-input">
+                                        </div>
+                                      </div>
+                                      <div class="layui-form-item" >
+                                        <label class="layui-form-label">原密码</label>
+                                        <div class="layui-input-block">
+                                          <input type="password" name="oldPassWord" placeholder="填写原密码以验证用户" lay-verify="required"
+                                                autocomplete="off" class="layui-input">
+                                        </div>
+                                      </div>
+                                      <div class="layui-form-item">
+                                        <label class="layui-form-label">新密码</label>
+                                        <div class="layui-input-block">
+                                          <input type="password" name="newPassWord" placeholder="填写新密码以修改信息"
+                                                autocomplete="off" class="layui-input">
+                                        </div>
+                                      </div>
+                                      <div class="layui-form-item" hidden>
+                                        <label class="layui-form-label">密码</label>
+                                        <div class="layui-input-block">
+                                          <input type="password" name="passWord" value="${user.passWord}"
+                                                autocomplete="off" class="layui-input">
+                                        </div>
+                                      </div>
+                                       <div class="layui-form-item">
+                                        <label class="layui-form-label">昵称</label>
+                                        <div class="layui-input-block">
+                                          <input type="text" name="nickName" placeholder="请输入昵称"  lay-verify="required"
+                                                value="${user.nickName}"autocomplete="off" class="layui-input">
+                                        </div>
+                                      </div> <div class="layui-form-item">
+                                        <label class="layui-form-label">状态</label>
+                                        <div class="layui-input-block">
+                                          <input type="text" name="status" value="${user.status === '0' ? '正常' : '已锁定'}" lay-verify="required"
+                                                autocomplete="off" class="layui-input" readonly>
+                                        </div>
+                                      </div> <div class="layui-form-item">
+                                        <label class="layui-form-label">权限</label>
+                                        <div class="layui-input-block">
+                                          <input type="text" name="roles" value="${user.roles}"  lay-verify="required"
+                                                autocomplete="off" class="layui-input" readonly>
+                                        </div>
+                                      </div>
+                                    </form>`,
+                                success: function (layero) {
+                                    layero.addClass('layui-form');
+                                    // 将确认按钮改变成提交按钮
+                                    layero.find('.layui-layer-btn0').attr({
+                                        'lay-filter': 'user',
+                                        'lay-submit': ''
+                                    });
+                                },
+                                yes: function () {
+                                    form.on('submit(user)', function (data) {
+                                        console.log('修改用户信息')
+                                        console.log(data.field)
+                                        let user = data.field;
+                                        $.ajax({
+                                            url: '/admin/user/updateUser',
+                                            data: {
+                                                userId: user.userId,
+                                                userName: user.userName,
+                                                passWord: user.passWord,
+                                                nickName: user.nickName,
+                                                oldPassWord: user.oldPassWord,
+                                                newPassWord: user.newPassWord,
+                                            },
+                                            type: 'Post',
+                                            success: function (data) {
+                                                if (data.code === 1) {
+                                                    layer.close(userInfo);
+                                                    layer.msg('修改成功，准备重新登录', {
+                                                        time: 1500,
+                                                        end: function () {
+                                                            //当修改成功时自动进行登录
+                                                            $.ajax({
+                                                                url: '/admin/login',
+                                                                data: {
+                                                                    'username': user.userName,
+                                                                    'password': function () {
+                                                                        if (user.newPassWord !== null && user.newPassWord !== '') {
+                                                                            return user.newPassWord
+                                                                        }
+                                                                        return user.oldPassWord
+                                                                    },
+                                                                    'remember': false
+                                                                }
+                                                                ,
+                                                                type: 'Post',
+                                                                success: function (data) {
+                                                                    if (data.code === 1) {
+                                                                        location.href = '/admin/index'
+                                                                    } else {
+                                                                        locationbar.href = '/admin/toLogin'
+                                                                    }
+                                                                }
+                                                            })
+                                                        }
+                                                    })
+                                                } else if (data.code === 2) {
+                                                    layer.msg('', {
+                                                        time: 1500,
+                                                        content: '<strong style="color: red">' + data.message + '</strong>'
+                                                    })
+                                                }
+                                            }
+                                        })
+                                    })
+                                },
+                                btn2: function () {
+                                    layer.msg('已取消', {
+                                        time: 1200,
+                                    })
+                                },
+                            })
+                        }
+                    })
+                    break;
+                //自定义头工具栏右侧图标 - 提示
+                case 'LAYTABLE_TIPS':
+                    layer.msg('', {
+                        type: 1,
+                        area: ['600px', '360px'],
+                        content: `<p>1、通过修改按钮授予用户权限</p>
+                                    <p>2、通过 锁定/解锁 按钮更改账号状态</p>`,
+                        btn: '确认',
+                        btnAlign: 'c',
+                        shade: 0.8,
+                        time: -1
+                    });
+                    break;
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(users)', function (obj) {
+            let user = obj.data;
+            console.log(user)
+            if (obj.event === 'del') { //删除操作
+                console.log(user.status)
+                if (user.status === '1') {
+                    layer.msg('', {
+                        time: 1200,
+                        content: '<strong style="color: red">该用户已被锁定</strong>'
+                    })
+                    return false;
+                }
+                let del = layer.open({
+                    type: 1
+                    , closeBtn: 1
+                    , area: '280px;'
+                    , shade: 0.8
+                    , shadeClose: true
+                    , btn: ['锁定', '取消']
+                    , btnAlign: 'c'
+                    , moveType: 1 //拖拽模式，0或者1
+                    , content:
+                        '<div style="font-size: medium; text-align:center">' +
+                        '<p>是否锁定用户: ' + user.userName + '</p>' +
+                        '</div>'
+                    , time: 6000
+                    , yes: function () {
+                        console.log('注销用户，userId = ' + user.userId)
+                        $.ajax({
+                            url: '/admin/roles/deleted/' + user.userId,
+                            type: 'Post',
+                            success: function (data) {
+                                if (data.code === 1) {
+                                    layer.msg(data.message, {
+                                        end: function () {
+                                            userTab.reload()
+                                            layer.close(del)
+                                        },
+                                        time: 1200
+                                    })
+                                } else {
+                                    layer.msg('', {
+                                        content: '<strong style="color: red">' + data.message + '</strong>',
+                                        time: 1200
+                                    })
+                                }
+                            }
+                        })
+                    }
+                    , btn2: function () {
+                        layer.msg("已取消")
+                    }
+                    , success: function (layero, index) {
+                        var timeNum = this.time / 1000, setText = function (start) {
+                            layer.title((start ? timeNum : --timeNum) + ' 秒后关闭', index);
+                        };
+                        setText(!0);
+                        this.timer = setInterval(setText, 1000);
+                        if (timeNum <= 0) clearInterval(this.timer);
+                    }
+                    , end: function () {
+                        clearInterval(this.timer);
+                    }
+                })
+            } else if (obj.event === 'edit') {  // 修改权限
+                let roles = layer.open({
+                    type: 1
+                    , closeBtn: 1
+                    , area: ['60%', '60%']
+                    , shade: 0.8
+                    , time: -1
+                    , shadeClose: true
+                    , id: 'LAY_layuipro' //设定一个id，防止重复弹出
+                    , btn: ['确认', '取消']
+                    , btnAlign: 'c'
+                    , moveType: 1 //拖拽模式，0或者1
+                    , content: `  <form class="layui-form layui-form-pane" style="margin-top: 10px" action="" lay-filter="roles">
+                                     <div class="layui-form-item" hidden>
+                                        <label class="layui-form-label">用户Id</label>
+                                        <div class="layui-input-inline">
+                                          <input type="number" name="userId" lay-verify="required" width="200px"  value="${user.userId}"
+                                           placeholder="用户id" autocomplete="off" class="layui-input" readonly>
+                                        </div>
+                                      </div>
+                                      <div class="layui-form-item " >
+                                        <label class="layui-form-label">用户名</label>
+                                        <div class="layui-input-block">
+                                           <input type="text" name="userName" lay-verify="required" value="${user.userName}"
+                                               autocomplete="off" class="layui-input" readonly>
+                                        </div>
+                                       </div>
+                                       <div class="layui-form-item">
+                                            <label class="layui-form-label">昵称</label>
+                                            <div class="layui-input-block">
+                                               <input type="text" name="nickName" lay-verify="required" value="${user.nickName}"
+                                                   autocomplete="off" class="layui-input" readonly>
+                                            </div>
+                                       </div>
+                                      <div class="layui-form-item">
+                                        <label class="layui-form-label">roles</label>
+                                        <div class="layui-input-block">
+                                         <select name="roles" lay-filter="roles" id="roles">
+                                              <option value="user">user</option>
+                                              <option value="boss">boss</option>
+                                              <option value="admin" >admin</option>
+                                            </select>
+                                        </div>
+                                      </div>
+                                   </form>`,
+                    success: function (layero) {
+                        layero.addClass('layui-form');
+                        // 将保存按钮改变成提交按钮
+                        layero.find('.layui-layer-btn0').attr({
+                            'lay-filter': 'roles',
+                            'lay-submit': ''
+                        });
+                        console.log(user.roles)
+                        if (user.roles !== 'boss') {
+                            console.log("禁用admin")
+                            document.getElementById('roles').options[2].disabled = true;
+                        }
+                        form.render()
+                    }
+                    , yes: function (index) {
+                        form.on('submit(roles)', function (data) {
+                            console.log("修改权限, data = " + (data))
+                            $.ajax({
+                                url: '/admin/roles/update',
+                                type: 'Post',
+                                data: {
+                                    'userId': data.field.userId,
+                                    'roles': data.field.roles
+                                },
+                                success: function (data) {
+                                    layer.close(index)
+                                    if (data.code === 1) {
+                                        layer.msg(data.message, {
+                                            area: ['260px', '100px'],
+                                            btn: '确认',
+                                            btnAlign: 'c',
+                                            time: 1200,
+                                            end: function () {
+                                                userTab.reload()
+                                            }
+                                        })
+                                    } else {
+                                        layer.msg('', {
+                                            area: ['260px', '100px'],
+                                            content: '<strong style="color: red">' + data.message + '</strong>',
+                                            time: 1200,
+                                        })
+                                    }
+                                    layer.close(roles)
+                                }
+                            })
+                        })
+                    }
+                    , btn2: function () {
+                        layer.msg("已取消")
+                    }
+                    , end: function () {
+                        clearInterval(this.timer);
+                    }
+
+                });
+            } else if (obj.event === 'recover') {      // 恢复账号
+                console.log(user.status)
+                if (user.status === '0') {
+                    layer.msg('', {
+                        time: 1200,
+                        content: '<strong style="color: red">该用户状态正常</strong>'
+                    })
+                    return false;
+                }
+                let del = layer.open({
+                    type: 1
+                    , closeBtn: 1
+                    , area: '280px;'
+                    , shade: 0.8
+                    , shadeClose: true
+                    , btn: ['恢复', '取消']
+                    , btnAlign: 'c'
+                    , moveType: 1 //拖拽模式，0或者1
+                    , content:
+                        '<div style="font-size: medium; text-align:center">' +
+                        '<p>是否恢复用户: ' + user.userName + '</p>' +
+                        '</div>'
+                    , time: 6000
+                    , yes: function () {
+                        console.log('恢复用户，userId = ' + user.userId)
+                        $.ajax({
+                            url: '/admin/roles/recover/' + user.userId,
+                            type: 'Post',
+                            success: function (data) {
+                                if (data.code === 1) {
+                                    layer.msg(data.message, {
+                                        end: function () {
+                                            userTab.reload()
+                                            layer.close(del)
+                                        },
+                                        time: 1200
+                                    })
+                                } else {
+                                    layer.msg('', {
+                                        content: '<strong style="color: red">' + data.message + '</strong>',
+                                        time: 1200
+                                    })
+                                }
+                            }
+                        })
+                    }
+                    , btn2: function () {
+                        layer.msg("已取消")
+                    }
+                    , success: function (layero, index) {
+                        var timeNum = this.time / 1000, setText = function (start) {
+                            layer.title((start ? timeNum : --timeNum) + ' 秒后关闭', index);
+                        };
+                        setText(!0);
+                        this.timer = setInterval(setText, 1000);
+                        if (timeNum <= 0) clearInterval(this.timer);
+                    }
+                    , end: function () {
+                        clearInterval(this.timer);
+                    }
+                })
+            }
+        })
+    })
+</script>
+</html>

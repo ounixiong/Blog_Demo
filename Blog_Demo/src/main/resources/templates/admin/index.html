@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<!-- 引入页面头模板  -->
+<head th:replace="admin/fragment/temp :: head(~{:: title}, ~{})">
+    <title>二三 | index</title>
+</head>
+<!-- 引入body模板 -->
+<body th:replace="admin/fragment/temp :: body(~{:: content})">
+<!-- 自定义页面内容 -->
+<div th:fragment="content">
+    <!-- 写博客、博客列表 -->
+    <div class="layui-row layui-col-space30"
+         style="margin: 5px 60px 10px">
+        <div class="layui-col-md5 ">
+            <div class="layui-panel layui-bg-black" title="编辑博客">
+                <div style="padding: 20px">
+                    <h3>Write | 编辑</h3>
+                    <hr class="layui-border-orange">
+                    <a style="color: white" th:href="@{/admin/blog/create}">
+                        <i class="fa fa-pencil-square-o"
+                           style="margin-left: 45% ;color: #00a8c6; font-size: xxx-large">
+                        </i>
+                        <hr class="layui-border-red">
+                        <div style="margin-left: 44% ;font-family: Consolas,serif; font-size: large">
+                            <h5>write</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md1"></div>
+        <div class="layui-col-md5">
+            <div class="layui-panel layui-bg-black" title="博客数据">
+                <div style="padding: 20px">
+                    <div style="display: flex; justify-content: space-between">
+                        <h3>Blog | 博客</h3> <span>共 [[${blogCount}]] 篇博客</span>
+                    </div>
+                    <hr class="layui-border-orange">
+                    <a style="color: white" th:href="@{/admin/blog/blogs}">
+                        <i aria-hidden="true" class="fa fa-book"
+                           style="margin-left: 45% ;color: #00a8c6; font-size: xxx-large">
+                        </i>
+                        <hr class="layui-border-red">
+                        <div style="margin-left: 45% ;font-family: 'Consolas',serif; font-size: large">
+                            <h5>blog</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 类别、标签 -->
+    <div class="layui-row layui-col-space30"
+         style="margin: 10px 60px 10px">
+        <div class="layui-col-md5">
+            <div class="layui-panel layui-bg-black" title="分类数据">
+                <div style="padding: 20px">
+                    <div style="justify-content: space-between; display: flex">
+                        <h3>Category | 类别</h3>
+                        <span>共 [[${cateCount}]] 种分类</span>
+                    </div>
+                    <hr class="layui-border-orange">
+                    <a style="color: white" th:href="@{/admin/blog/categories}">
+                        <i aria-hidden="true" class="fa fa-tachometer"
+                           style="margin-left: 45% ;color: #00a8c6; font-size: xxx-large">
+                        </i>
+                        <hr class="layui-border-red">
+                        <div style="margin-left: 40% ;font-family: 'Consolas',serif; font-size: large">
+                            <h5>category</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md1"></div>
+        <div class="layui-col-md5">
+            <div class="layui-panel layui-bg-black" title="标签数据">
+                <div style="padding: 20px">
+                    <div style="display: flex; justify-content: space-between">
+                        <h3>Tags | 标签</h3>
+                        <span>共 [[${tagCount}]] 个标签</span>
+                    </div>
+                    <hr class="layui-border-orange">
+                    <a style="color: white" th:href="@{/admin/blog/tags}">
+                        <i aria-hidden="true" class="fa fa-tags"
+                           style="margin-left: 45% ;color: #00a8c6; font-size: xxx-large">
+                        </i>
+                        <hr class="layui-border-red">
+                        <div style="margin-left: 45.5% ;font-family: 'Consolas',serif; font-size: large">
+                            <h5>tags</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 友链、配置 -->
+    <div class="layui-row layui-col-space30"
+         style="margin: 10px 60px 10px">
+        <div class="layui-col-md5">
+            <div class="layui-panel layui-bg-black" title="友链数据">
+                <div style="padding: 20px">
+                    <div style="display: flex; justify-content: space-between">
+                        <h3>Links | 友链</h3>
+                        <span>共 [[${linkCount}]] 条友链</span>
+                    </div>
+                    <hr class="layui-border-orange">
+                    <a style="color: white" th:href="@{/admin/links}">
+                        <i aria-hidden="true" class="fa fa-link"
+                           style="margin-left:45% ;color: #00a8c6; font-size: xxx-large">
+                        </i>
+                        <hr class="layui-border-red">
+                        <div style="margin-left: 44% ;font-family: 'Consolas',serif; font-size: large">
+                            <h5>links</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md1"></div>
+        <div class="layui-col-md5">
+            <div class="layui-panel layui-bg-black" title="账户管理">
+                <div style="padding: 20px">
+                    <h3>User | 管理</h3>
+                    <hr class="layui-border-orange">
+                    <a style="color: white" th:href="@{/admin/user}">
+                        <i aria-hidden="true" class="fa fa-cogs"
+                           style="margin-left: 45% ;color: #00a8c6; font-size: xxx-large">
+                        </i>
+                        <hr class="layui-border-red">
+                        <div style="margin-left: 45% ;font-family: 'Consolas',serif; font-size: large">
+                            <h5>users</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+<script th:replace="admin/fragment/temp :: JS"></script>
+</html>

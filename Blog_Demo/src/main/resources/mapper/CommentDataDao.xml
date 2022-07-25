@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- namespace：命名空间唯一；使用 dao 接口全限定名 -->
+<mapper namespace="blog.dao.CommentDataDao">
+    <!-- 映射结果集没，自定义id，映射到实体类属性 -->
+    <resultMap id="commentData" type="blog.empty.CommentData">
+        <id column="id" property="id"/>
+        <id column="blogId" property="blogId"/>
+        <result column="blogTitle" property="blogTitle"/>
+        <result column="num" property="num"/>
+    </resultMap>
+
+
+    <select id="getAll" resultMap="commentData">
+        select blogId, blogTitle, num
+        from commentdata
+    </select>
+
+    <insert id="insert">
+        insert into commentdata(blogId, blogTitle, num) values
+        <foreach collection="list" separator="," item="data">
+            (#{data.blogId}, #{data.blogTitle}, #{data.num})
+        </foreach>
+    </insert>
+
+    <delete id="delete">
+        delete
+        from commentdata
+    </delete>
+
+</mapper>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>二三 | register</title>
+    <!-- Meta-Tags -->
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8">
+    <meta content="十八 | 注册" name="keywords">
+    <script>
+        // <!-- 加载到页头，而非保留原浏览位置记录 -->
+        addEventListener("load", function () {
+            setTimeout(hideURLbar, 0);
+        }, false);
+
+        function hideURLbar() {
+            window.scrollTo(0, 1);
+        }
+    </script>
+    <link rel="shortcut icon" th:href="@{/resources/common/images/favicon-32x32.png}">
+    <script th:src="@{/resources/common/js/jquery-3.6.0.js}"></script>
+    <link media="all" rel="stylesheet" th:href="@{/resources/admin/login/css/style.css}" type="text/css">
+    <link media="all" rel="stylesheet" th:href="@{/resources/admin/login/css/font-awesome.min.css}" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Quattrocento+Sans:400,400i,700,700i" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Mukta:200,300,400,500,600,700,800" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/resources/common/layui/css/layui.css}">
+    <script th:src="@{/resources/common/layui/layui.js}"></script>
+
+</head>
+<body>
+
+<section class="main">
+    <div class="layer">
+        <div class="bottom-grid">
+            <!-- 字体logo -->
+            <div class="logo">
+                <a style="font: 600 xxx-large '华文隶书',serif; color: dimgrey" th:href="@{/index}"
+                   title="回到首页">
+                    十
+                </a><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <a style="font: 600 xxx-large '华文隶书',serif; color: dimgrey" th:href="@{/index}"
+                   title="回到首页">
+                    八
+                </a>
+            </div>
+            <!-- 页头链接 -->
+            <div class="links">
+                <ul class="links-unordered-list" style="font-family: Consoles,serif">
+                    <li class="active">
+                        <a class="" th:href="@{/admin/toLogin}" title="登录">Login</a>
+                    </li>
+                    <li class="">
+                        <a class="" th:href="@{/admin/toRegister}" title="注册">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="content-w3ls">
+            <!-- 图标 -->
+            <div class="text-center icon">
+                <a th:href="@{/index}" title="回到首页">
+                    <span class="fa fa-eercast fa-spin" style="font-size: xx-large; color: #c0c4cc"></span>
+                </a>
+            </div>
+            <div class="content-bottom">
+                <form id="register">
+                    <!-- 用户名 -->
+                    <div class="field-group">
+                        <span aria-hidden="true" class="fa fa-user"></span>
+                        <div class="wthree-field">
+                            <label for="user-name-label">
+                                <input id="user-name-label" name="userName" placeholder="请输入用户名" required
+                                       type="text" value="">
+                            </label>
+                        </div>
+                    </div>
+                    <!-- 密码 -->
+                    <div class="field-group">
+                        <span aria-hidden="true" class="fa fa-lock"></span>
+                        <div class="wthree-field">
+                            <label for="password-label">
+                                <input id="password-label" name="passWord" placeholder="请输入密码"
+                                       required type="Password">
+                            </label>
+                        </div>
+                    </div>
+                    <!-- 昵称 -->
+                    <div class="field-group">
+                        <span aria-hidden="true" class="fa fa-user"></span>
+                        <div class="wthree-field">
+                            <label for="user-name-label">
+                                <input id="nickName" name="nickName" placeholder="请添加昵称" required
+                                       type="text" value="">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="wthree-field">
+                        <button class="btn" id="suBtn" type="button"> 注 &nbsp;&nbsp;&nbsp;册</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="bottom-grid1">
+            <div class="links">
+                <ul class="links-unordered-list">
+                    <li class="">
+                        <a class="" href="#" title="笑">Smile</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="#" title="哭">Cry</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="#" title="就是生活">Life</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="copyright">
+                <p>© 2022 二三 | 十八 | Design by
+                    <a href="https://w3layouts.com" title="W3layouts官网">W3layouts</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<script th:inline="javascript">
+    // <!-- 按钮绑定事件提交表单 -->
+    $('#suBtn').click(function () {
+        let username = $('#user-name-label').val();
+        if (username === '' || username === null) {
+            layer.msg('用户名为必填项', {
+                time: 1200
+            })
+            return false;
+        }
+        let password = $('#password-label').val();
+        if (password === '' || password === null) {
+            layer.msg('密码为必填项', {
+                time: 1200
+            })
+            return false;
+        }
+        let nickname = $('#nickName').val();
+        if (nickname === '' || nickname === null) {
+            layer.msg('昵称为必填项', {
+                time: 1200
+            })
+            return false;
+        }
+        $.ajax({
+            url: "/admin/register",
+            type: 'Post',
+            data: {
+                userName: username,
+                passWord: password,
+                nickName: nickname
+            },
+            success: function (data) {
+                console.log(data)
+                if (data.code === 1) {
+                    layer.msg('', {
+                        content: '<strong style="margin: 20px 20px">' + data.message + '</strong>',
+                        area: ['180px', '90px'],
+                        time: 1500,
+                        end: function () {
+                            //当注册成功时自动进行登录
+                            $.ajax({
+                                url: '/admin/login'
+                                , data: {'username': username, 'password': password, 'remember': false}
+                                , type: 'Post',
+                                success: function (data) {
+                                    if (data.code === 1) {
+                                        location.href = '/index';
+                                    } else {
+                                        locationbar.href = '/admin/toLogin'
+                                    }
+                                }
+                            })
+                        }
+                    })
+                } else {
+                    layer.msg('', {
+                        content: '<strong style="margin: 20px 20px;color: red">' + data.message + '</strong>',
+                        // area: ['200px', '60px'],
+                        shade: 0.5,
+                        time: 1500,
+                        shadeClose: true,
+                        end: function () {
+                            console.log('对输入框内容清理')
+                            $('#user-name-label').val('');
+                        }
+                    })
+                }
+
+            },
+            error: function (data) {
+                console.log(data)
+                layer.msg(data.message, {
+                    area: ['240px', '120px'],
+                    btn: '确认',
+                    btnAlign: 'c',
+                    time: 3000,
+                })
+            }
+        })
+
+    })
+</script>
+</body>
+</html>

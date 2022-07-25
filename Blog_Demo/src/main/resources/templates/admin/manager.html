@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<!-- 引入页面头模板  -->
+<head th:replace="admin/fragment/temp :: head(~{:: title}, ~{})">
+    <title>二三 | create</title>
+</head>
+<!-- 引入body模板 -->
+<body th:replace="admin/fragment/temp :: body(~{:: content})">
+<!-- 自定义页面内容 -->
+<div th:fragment="content">
+    <form th:if="${blog}" hidden id="blog" class="blog">
+        <span id="blogId" class="blogId" th:value="${blog.getBlogId()}"></span>
+        <span id="blogTitle" class="blogTitle" th:value="${blog.getBlogTitle()}"></span>
+        <span id="blogContent" class="blogContent" th:value="${blog.getBlogContent()}"></span>
+        <span id="blogCate" class="blogCate" th:value="${blog.getBlogCate()}"></span>
+        <span id="blogTagName" class="blogTagName" th:value="${blog.getBlogTagName()}"></span>
+        <span id="blogStatus" class="blogStatus" th:value="${blog.getBlogStatus()}"></span>
+        <span id="allowComm" class="allowComm" th:value="${blog.getAllowComm()}"></span>
+    </form>
+    <iframe th:src="@{/admin/blog/createDate}" class="layadmin-iframe" name="iframeMain" width="99%" height="655px">
+    </iframe>
+</div>
+</body>
+<script th:replace="admin/fragment/temp :: JS">
+    /* //JS
+     layui.use(['element', 'layer', 'util'], function () {
+         let element = layui.element
+             , layer = layui.layer
+             , util = layui.util
+             , $ = layui.$;
+
+         let isShow = true;
+         //头部事件
+         util.event('lay-header-event', {
+             //左侧菜单事件
+             menuLeft: function (othis) {
+                 //选择出所有的span，并判断是不是hidden
+                 $('.layui-nav-item span').each(function () {
+                     if ($(this).is(':hidden')) {
+                         $(this).show();
+                     } else {
+                         $(this).hide();
+                     }
+                 });
+                 //判断isshow的状态
+                 if (isShow) {
+                     $('.layui-side.layui-bg-black').width(60); //设置宽度
+                     $('.kit-side-fold i').css('margin-right', '90%');  //修改图标的位置
+                     //将footer和body的宽度修改
+                     $('.layui-body').css('left', 60 + 'px');
+                     $('.layui-footer').css('left', 60 + 'px');
+                     //将二级导航栏隐藏
+                     $('dd span').each(function () {
+                         $(this).hide();
+                     });
+                     //修改标志位
+                     isShow = false;
+                 } else {
+                     $('.layui-side.layui-bg-black').width(200);
+                     $('.kit-side-fold i').css('margin-right', '10%');
+                     $('.layui-body').css('left', 200 + 'px');
+                     $('.layui-footer').css('left', 200 + 'px');
+                     $('dd span').each(function () {
+                         $(this).show();
+                     });
+                     isShow = true;
+                 }
+             },
+
+             menuRight: function () {
+                 layer.open({
+                     type: 1
+                     , content: '<div style="padding: 15px;">消息面板</div>'
+                     , area: ['260px', '100%']
+                     , offset: 'rt' //右上角
+                     , anim: 5
+                     , shadeClose: true
+                 });
+             }
+         });
+
+     });
+     $(function (){
+         console.log("触发事件")
+         $('#btn').trigger("click")
+     })
+     window.onhashchange = function(){
+         var hash = location.hash;
+         hash = hash.substring(1,hash.length);
+         $("#ifream").attr("src",hash);
+     }
+     document.addEventListener('DOMContentLoaded', function () {
+         var hash = location.hash;
+         var url = hash.substring(1,hash.length);
+         $("#ifream").attr("src", url);
+     }, false)*/
+</script>
+
+</html>

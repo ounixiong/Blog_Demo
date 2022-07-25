@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>二三 | login</title>
+    <!-- Meta-Tags -->
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8">
+    <meta content="十八 | 登录" name="keywords">
+    <script>
+        addEventListener("load", function () {
+            setTimeout(hideURLbar, 0);
+        }, false);
+
+        function hideURLbar() {
+            window.scrollTo(0, 1);
+        }
+    </script>
+    <link rel="shortcut icon" th:href="@{/resources/common/images/favicon-32x32.png}">
+    <script th:src="@{/resources/common/js/jquery-3.6.0.js}"></script>
+    <link media="all" rel="stylesheet" th:href="@{/resources/admin/login/css/style.css}" type="text/css">
+    <link media="all" rel="stylesheet" th:href="@{/resources/admin/login/css/font-awesome.min.css}" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Quattrocento+Sans:400,400i,700,700i" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Mukta:200,300,400,500,600,700,800" rel="stylesheet">
+
+</head>
+<body>
+
+<section class="main">
+    <div class="layer">
+        <div class="bottom-grid">
+            <!-- 字体logo -->
+            <div class="logo">
+                <a style="font: 600 xxx-large '华文隶书',serif; color: dimgrey" th:href="@{/index}"
+                   title="回到首页">
+                    十
+                </a><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <a style="font: 600 xxx-large '华文隶书',serif; color: dimgrey" th:href="@{/index}"
+                   title="回到首页">
+                    八
+                </a>
+            </div>
+            <!-- 页头链接 -->
+            <div class="links">
+                <ul class="links-unordered-list" style="font-family: Consoles,serif">
+                    <li class="active">
+                        <a class="" th:href="@{/admin/toLogin}" title="登录">Login</a>
+                    </li>
+                    <li class="">
+                        <a class="" th:href="@{/admin/toRegister}" title="注册">Register</a>
+                    </li>
+                    <li class="">
+                        <a class="" th:href="@{/index}" title="回到首页">Index</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="content-w3ls">
+            <!-- 图标 -->
+            <div class="text-center icon">
+                <a th:href="@{/index}" title="回到首页">
+                    <span class="fa fa-eercast fa-spin" style="font-size: xx-large; color: #c0c4cc"></span>
+                </a>
+            </div>
+            <div class="content-bottom">
+                <form action="" method="post">
+                    <!-- 用户名 -->
+                    <div class="field-group">
+                        <span aria-hidden="true" class="fa fa-user"></span>
+                        <div class="wthree-field">
+                            <label for="username">
+                                <input id="username" name="username" placeholder="请输入用户名" required
+                                       type="text" value="">
+                            </label>
+                        </div>
+                    </div>
+                    <!-- 密码 -->
+                    <div class="field-group">
+                        <span aria-hidden="true" class="fa fa-lock"></span>
+                        <div class="wthree-field">
+                            <label for="password">
+                                <input id="password" name="password" placeholder="请输入密码"
+                                       required type="Password">
+                            </label>
+                        </div>
+                    </div>
+                    <!-- 登录按钮 -->
+                    <div class="wthree-field">
+                        <button class="btn" id="suBtn" type="button"> 登&nbsp;&nbsp;&nbsp;录</button>
+                    </div>
+                    <ul class="list-login">
+                        <li style="color: white">
+                            <!-- <a class="text-right" th:href="@{/admin/toRegister}" title="注册账号"> -->
+                            <!--     Create Account</a> -->
+                            记住我
+                        </li>
+                        <!-- remember 功能 -->
+                        <li class="switch-agileits" title="保存登录信息">
+                            <label class="switch">
+                                <input id="remember" name="remember" type="checkbox" value="on">
+                                <span class="slider round"></span>
+                                保存登录信息三天
+                            </label>
+                        </li>
+                        <li class="clearfix"></li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div class="bottom-grid1">
+            <div class="links">
+                <ul class="links-unordered-list">
+                    <li class="">
+                        <a class="" href="#" title="笑">Smile</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="#" title="哭">Cry</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="#" title="就是生活">Life</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="copyright">
+                <p title="二三">© 2022 二三 | 十八 | Design by
+                    <a href="https://w3layouts.com" title="W3layouts官网">W3layouts</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- layui css 样式表 -->
+<link rel="stylesheet" th:href="@{/resources/common/layui/css/layui.css}">
+<!-- layui.js -->
+<script th:src="@{/resources/common/layui/layui.js}"></script>
+<script th:inline="javascript">
+
+    layui.use(['layer'], function () {
+        let layer = layui.layer
+            , $ = layui.jquery;
+
+
+        $('#suBtn').click(function () {
+                let name = $('#username').val();
+                let pwd = $('#password').val();
+                let rem = $('#remember').val()
+                console.log("登录表单提交；参数： username = " + name + "; password = " + pwd + "; remember = " + rem)
+                $.ajax({
+                    url: '/admin/login'
+                    , data: {'username': name, 'password': pwd, 'remember': rem}
+                    , type: 'Post'
+                    , success: function (data) {
+                        if (data.code === 1) {
+                            console.log('登录成功')
+                            layer.msg(data.message, {
+                                time: 1000
+                            })
+                            let prevLink = document.referrer;
+                            console.log(prevLink)
+                            setTimeout(`
+                                let prevLink = document.referrer;
+                                console.log(prevLink)
+                                if ($.trim(prevLink) === '') {
+                                    location.href = '/index';
+                                } else {
+                                    //路径包括 admin
+                                    if (prevLink.includes("ogin") || prevLink.includes("egister") || prevLink.includes("admin")) {    //来自其它站点
+                                        console.log("来自注册或登录页面")
+                                        location.href = '/index';
+                                    } else {
+                                        // 跳回上一个页面
+                                        location.href = prevLink;
+                                    }
+                                }
+                            `, 1000)
+                        } else {
+                            console.log('登录失败：' + (data.message))
+                            layer.msg('', {
+                                content: '<div style="margin: 20px 20px; color: red">' + data.message + '</div>',
+                                time: 2000,
+                                shade: 0.5,
+                                shadeClose: true,
+                            })
+                        }
+                    }
+                })
+            }
+        )
+    })
+</script>
+</body>
+</html>

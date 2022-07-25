@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- namespace：命名空间，自定义唯一值；常规使用 dao 接口全限定名 -->
+<mapper namespace="blog.dao.BlogDao">
+
+    <resultMap id="blog" type="blog.empty.Blog">
+        <id column="blog_id" property="blogId"/>
+        <result column="blog_title" property="blogTitle"/>
+        <result column="blog_content" property="blogContent"/>
+        <result column="blog_cate" property="blogCate"/>
+        <result column="blog_tag_name" property="blogTagName"/>
+        <result column="blog_status" property="blogStatus"/>
+        <result column="blog_views" property="blogViews"/>
+        <result column="allow_comm" property="allowComm"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="creatTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="comment_num" property="commentNum"/>
+    </resultMap>
+
+    <!--sql 片段；不包含内容-->
+    <sql id="field">
+        blog_id
+        , blog_title, blog_cate, blog_tag_name,
+        blog_status, blog_views, allow_comm,
+        deleted, create_time, update_time ,comment_num
+    </sql>
+
+    <sql id="all">
+        blog_id
+        , blog_title, blog_content, blog_cate, blog_tag_name,
+        blog_status, blog_views, allow_comm,
+        deleted, create_time, update_time ,comment_num
+    </sql>
+    <!--获取所有未删除博客信息；不包含内容-->
+    <select id="getUnDeleted" resultMap="blog">
+        select
+        <include refid="field"/>
+        from blog where deleted = '0'
+        order by create_time desc
+    </select>
+
+    <!--获取所有已删除博客信息；不包含内容-->
+    <select id="getDeleted" resultMap="blog">
+        select
+        <include refid="field"/>
+        from blog where deleted = '1'
+    </select>
+
+    <!--获取所有未删除且已发布博客信息；不包含内容-->
+    <select id="getNormal" resultMap="blog">
+        select
+        <include refid="field"/>
+        from blog where deleted = '0' and blog_status = '1'
+        order by create_time desc
+    </select>
+
+    <!--获取所有已发布博客信息；不包含内容-->
+    <select id="getRelease" resultMap="blog">
+        select
+        <include refid="field"/>
+        from blog where blog_status = '1'
+        order by create_time desc
+    </select>
+
+
+    <!--根据 id 获取指定博客-->
+    <select id="getBlogById" resultMap="blog">
+        select
+        <include refid="all"/>
+        from blog
+        where blog_id = #{id}
+    </select>
+
+    <!--根据标题模糊查询博客记录-->
+    <select id="getBlogByName" resultMap="blog">
+        select
+        <include refid="field"/>
+        from blog
+        where deleted = '0'
+        and blog_title like '%' #{name} '%'
+    </select>
+
+    <!--根据标签名模糊查询博客记录-->
+    <select id="getByTag" resultMap="blog">
+        select
+        <include refid="field"/>
+        from blog
+        where deleted = '0'
+        and blog_tag_name like '%' #{name} '%'
+    </select>
+
+    <!--根据类别名查询博客记录-->
+    <select id="getBlogByCate" resultMap="blog">
+        select
+        <include refid="field"/>
+        from blog
+        where deleted = '0'
+        and blog_cate = #{blogCate}
+    </select>
+
+    <!--根据浏览量降序查询-->
+    <select id="getByViews" resultMap="blog">
+        select blog_id, blog_title
+        from blog
+        where deleted = '0'
+        order by blog_views desc
+        limit 5
+    </select>
+
+    <!--根据创建时间降序查询-->
+    <select id="getByTimes" resultMap="blog">
+        select blog_id, blog_title
+        from blog
+        where deleted = '0'
+        order by create_time desc
+        limit 5
+    </select>
+
+    <!--获取博客数量-->
+    <select id="getCount" resultType="Integer">
+        select count(*)
+        from blog
+        where deleted = #{type}
+    </select>
+
+    <!--根据标签名获取对应博客数量-->
+    <select id="getTagBlogCount" resultType="Integer">
+        select count(*)
+        from blog
+        where deleted = '0'
+          and blog_tag_name like '%' #{name} '%'
+    </select>
+
+    <!--根据类别名获取对应博客数量-->
+    <select id="getCateBlogCount" resultType="Integer">
+        select count(*)
+        from blog
+        where deleted = '0'
+          and blog_cate = #{blogCate}
+    </select>
+
+    <!--添加博客-->
+    <insert id="insert">
+        insert into blog(
+        blog_title, blog_content, blog_cate,
+        <if test="blogTagName != null">
+            blog_tag_name,
+        </if>
+        blog_status, allow_comm, create_time)
+        values(
+        #{blogTitle}, #{blogContent}, #{blogCate},
+        <if test="blogTagName != null">
+            #{blogTagName},
+        </if>
+        #{blogStatus}, #{allowComm}, now())
+    </insert>
+
+    <!--删除博客-->
+    <update id="remove">
+        update blog
+        set deleted = '1'
+        where blog_id = #{id}
+    </update>
+
+    <!--恢复博客-->
+    <update id="restore">
+        update blog
+        set deleted = '0'
+        where blog_id = #{id}
+    </update>
+
+    <!--彻底删除-->
+    <delete id="deleted">
+        delete
+        from blog
+        where blog_id = #{id}
+    </delete>
+
+    <!--修改博客-->
+    <update id="update">
+        update blog
+        set blog_id = #{blogId}
+        <if test="blogTitle != null">
+            , blog_title = #{blogTitle}
+        </if>
+        <if test="blogContent != null">
+            , blog_content = #{blogContent}
+        </if>
+        <if test="blogCate != null">
+            , blog_cate = #{blogCate}
+        </if>
+        <if test="blogTagName != null">
+            , blog_tag_name = #{blogTagName}
+        </if>
+        <if test="blogStatus != null">
+            , blog_status = #{blogStatus}
+        </if>
+        <if test="allowComm != null">
+            , allow_comm = #{allowComm}
+        </if>
+        <if test="deleted != null">
+            , deleted = #{deleted}
+        </if>
+        , update_time = now()
+        where blog_id = #{blogId}
+    </update>
+
+    <!--根据 id 添加浏览量-->
+    <update id="updateViews">
+        update blog
+        set blog_views = blog_views + #{num}
+        where blog_id = #{blogId}
+    </update>
+
+    <!--根据 id 添加评论数量-->
+    <update id="updateCommNum">
+        update blog
+        set comment_num = comment_num + #{num}
+        where blog_id = #{blogId}
+    </update>
+
+</mapper>
